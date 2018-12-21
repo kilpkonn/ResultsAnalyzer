@@ -1,6 +1,19 @@
 """Results analyzer."""
 
 
+class Place(object):
+    """Place obj."""
+
+    def __init__(self, points: int, symbol: str):
+        """Init."""
+        self.points = points
+        self.symbol = symbol
+
+    def __repr__(self):
+        """Repr."""
+        return self.symbol
+
+
 class Sailor:
     """Sailor"""
 
@@ -14,6 +27,10 @@ class Sailor:
         self.nationality = nationality
         self.races = races
         self.club = club
+
+    @property
+    def points(self):
+        return sum(x.points for x in self.races)
 
     def __repr__(self):
         """Repr."""
@@ -108,12 +125,18 @@ class Analyzer:
                 if not races:
                     races = []
                 if node in self.special_codes:
-                    races.pop()
+                    pos = int(races.pop().symbol.replace(".0", ""))
                     offset -= 1
-                races.append(node)
+                else:
+                    pos = int(node.replace(".0", ""))
+                races.append(Place(pos, node))
 
         return Sailor(name.strip(), sail_nr, gender, sub_cats, nat, races, club.strip())
 
     def get_competitiors(self):
         """Get competitors"""
-        return [x for x in self.data]
+        return self.data.copy()
+
+    def get_results(self):
+        """Get results"""
+        return sorted(self.data, key=lambda x: x.points)
