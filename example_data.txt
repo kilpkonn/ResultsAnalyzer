@@ -1,0 +1,13 @@
+Rank SailNo Club HelmName Nat U21 R1 R2 R3 R4 R5 R6 R7 R8 R9 Total Nett Fliidiseeria Poolfinaal Kokku Finaal
+1st 203724 ROPK/TJK Karl-Martin Rammo EST (2.0) 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 10.0 8.0 8 1
+2nd 212229 ROPK Georg Haud EST 1.0 2.0 2.0 2.0 2.0 5.0 3.0 (8.0) 2.0 27.0 19.0 19 2
+3rd 212230 ROPK Martin Aruja EST (8.0) 5.0 7.0 5.0 4.0 6.0 4.0 5.0 4.0 48.0 40.0 40 1 41 3
+4th 20103 ROPK Tavo Annus EST + 3.0 4.0 5.0 3.0 (9.0) 3.0 2.0 2.0 5.0 36.0 27.0 27 4
+5th 207740 ROPK Bo Aaron Kooser EST + (10.0) 6.0 3.0 8.0 5.0 2.0 6.0 3.0 3.0 46.0 36.0 36 6 42
+6th 20470 Topper Club Ricards Toms Zvilna LAT + 6.0 (8.0) 4.0 6.0 6.0 7.0 8.0 4.0 6.0 55.0 47.0 47 2 49
+7th 213945 Saaremaa Merispordiselts Joosep Laus EST + (13.0 DNF) 3.0 13.0 RET 7.0 3.0 9.0 7.0 7.0 7.0 69.0 56.0 56 5 61
+8th 210522 Topper Club Eriks Karlis Zvilna LAT + 5.0 9.0 (11.0) 9.0 13.0 DNE 4.0 5.0 9.0 10.0 75.0 64.0 64 4 68
+9th 192655 PJK Rasmus Maalinn EST + 9.0 (12.0) 10.0 4.0 10.0 8.0 12.0 6.0 8.0 79.0 67.0 67 3 70
+10th 189361 Pärnu Jahtklubi Karsten Holter EST + 4.0 11.0 6.0 (12.0) 11.0 10.0 11.0 10.0 9.0 84.0 72.0 72 7 79
+11th 203722 ROPK Mikael Ristmets EST + 7.0 7.0 9.0 11.0 8.0 12.0 10.0 (13.0 DNC) 11.0 88.0 75.0 75 75
+12th 198226 ROPK Karl-Friedrich Lind EST + 11.0 10.0 8.0 10.0 7.0 11.0 9.0 (13.0 DNC) 13.0 DNC 92.0 79.0 79 79
