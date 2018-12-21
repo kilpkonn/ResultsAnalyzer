@@ -6,4 +6,4 @@ if __name__ == "__main__":
     analyzer.load_results("./example_data.txt")
     for n in analyzer.get_competitiors():
         print(n)
-        print(n.sub_categories)
+        print(n.nationality)
