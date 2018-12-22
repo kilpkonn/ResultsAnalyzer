@@ -40,7 +40,8 @@ class Sailor:
 
     def __repr__(self):
         """Repr."""
-        return f"Name: {self.name}, club: {self.club}, sail nr: {self.sail_nr}, races: {self.races}"
+        return f"Name: {self.name}, club: {self.club}, sail nr: {self.sail_nr}, races: {self.races}, " + \
+            f"points: {self.total_points}"
 
 
 class Analyzer:
