@@ -29,8 +29,14 @@ class Sailor:
         self.club = club
 
     @property
-    def points(self):
+    def total_points(self):
+        """Get total points."""
         return sum(x.points for x in self.races)
+
+    def get_points_after(self, races: int, discount: int = 0):
+        """Get points after x races."""
+        points_to_discount = sum(sorted([x.points for x in self.races[:races]], reverse=True)[:discount])
+        return sum([x.points for x in self.races[:races]]) - points_to_discount
 
     def __repr__(self):
         """Repr."""
@@ -137,6 +143,10 @@ class Analyzer:
         """Get competitors"""
         return self.data.copy()
 
-    def get_results(self):
+    def get_results(self, discount: int = 0, races: int = None):
         """Get results"""
-        return sorted(self.data, key=lambda x: x.points)
+        if not races or races < 1:
+            races = len(self.data[0].races)
+        if races <= discount or discount < 0:
+            raise ValueError("You cannot discount all races nor negative amount of races!")
+        return sorted(self.data, key=lambda x: x.get_points_after(races, discount))

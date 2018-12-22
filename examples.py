@@ -7,5 +7,5 @@ if __name__ == "__main__":
     for n in analyzer.get_competitiors():
         print(n)
     print('-' * 100)
-    for n in analyzer.get_results():
+    for n in analyzer.get_results(discount=1):
         print(n)
