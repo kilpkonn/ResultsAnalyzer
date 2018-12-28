@@ -51,7 +51,7 @@ class Analyzer:
         """Init."""
         self.data = None
         self.syntax = None
-        self.special_codes = ["DNE", "OCS", "UFD", "BFD", "DSQ", "RET", "DNC"]
+        self.special_codes = ["dne", "ocs", "ufd", "bfd", "dsq", "ret", "dnc", "dns"]
 
     def load_results(self, file_name: str):
         """Load results from file."""
@@ -119,20 +119,20 @@ class Analyzer:
                 node = node.replace('(', '').replace(')', '').replace('[', '').replace(']', '').strip()
                 if not races:
                     races = []
-                if "/" in node:
-                    pos = int(node.split("/")[0].replace(".0", ""))
-                    sym = node.split("/")[1]
+                if '/' in node:
+                    pos = int(node.split('/')[0].replace(".0", ""))
+                    sym = node.split('/')[1]
                 else:
                     pos = int(node.replace(".0", ""))
                     sym = str(pos)
                 races.append(Place(pos, sym))
         return Sailor(name.strip(), sail_nr, gender, sub_cats, nat, races, club.strip())
 
-    def get_competitors(self):
+    def get_competitors(self) -> list:
         """Get competitors"""
         return self.data.copy()
 
-    def get_results(self, discount: int = 0, races: int = None):
+    def get_results(self, discount: int = 0, races: int = None) -> list:
         """Get results"""
         if not races:
             races = len(self.data[0].races)
