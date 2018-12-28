@@ -128,7 +128,7 @@ class Analyzer:
                 races.append(Place(pos, sym))
         return Sailor(name.strip(), sail_nr, gender, sub_cats, nat, races, club.strip())
 
-    def get_competitiors(self):
+    def get_competitors(self):
         """Get competitors"""
         return self.data.copy()
 
