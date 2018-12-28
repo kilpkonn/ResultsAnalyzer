@@ -55,27 +55,26 @@ class Analyzer:
 
     def load_results(self, file_name: str):
         """Load results from file."""
+        import csv
         self.data = []
         with open(file_name, 'r') as f:
-            lines = f.readlines()
-        for i, line in enumerate(lines):
-            if i == 0:
-                self.try_get_syntax(line)
-                continue
+            lines = csv.reader(f, delimiter=",")
+            for i, line in enumerate(lines):
+                if i == 0:
+                    self.try_get_syntax(line)
+                    continue
 
-            obj = self.get_clean_data(line)
-            self.data.append(obj)
+                obj = self.get_clean_data(line)
+                self.data.append(obj)
 
-    def try_get_syntax(self, line: str) -> bool:
-        """Try to get syntax from first line."""
-        data = line.strip().split(' ')
+    def try_get_syntax(self, data) -> bool:
         syntax = []
         for n in data:
-            if n.lower() in ["sailno", "sailnr"]:
+            if n.lower() in ["sailno", "sailnr", "sail"]:
                 syntax.append("sail_nr")
             elif n.lower() in ["club", "klubi"]:
                 syntax.append("club")
-            elif n.lower() in ["helmname", "name"]:
+            elif n.lower() in ["helmname", "name", "skipper"]:
                 syntax.append("name")
             elif n.lower() in ["gender", "sugu"]:
                 syntax.append("gender")
@@ -83,7 +82,7 @@ class Analyzer:
                 syntax.append("nat")
             elif n.lower() in ["u21", "junior", "u19"]:
                 syntax.append(f"sub_cat_{n}")  # something better here
-            elif n.lower().startswith('r') and n[1:].isdigit():
+            elif (n.lower().startswith('r') and n[1:].isdigit()) or n.lower().isdigit():
                 syntax.append("race")
             else:
                 syntax.append("null")
@@ -92,7 +91,7 @@ class Analyzer:
             return True
         return False
 
-    def get_clean_data(self, line: str) -> Sailor:
+    def get_clean_data(self, line) -> Sailor:
         """Get clean data."""
         name = ''
         sail_nr = None
@@ -101,43 +100,32 @@ class Analyzer:
         nat = None
         races = None
         club = ''
-        offset = 0
-        for i, node in enumerate(line.strip().split(' ')):
-            if self.syntax[i + offset] == "name":
-                if name == '':
-                    offset -= 1
-                name += ' ' + node
-            elif self.syntax[i + offset] == "sail_nr":
+        for i, node in enumerate(line):
+            if self.syntax[i] == "name":
+                name += node
+            elif self.syntax[i] == "sail_nr":
                 sail_nr = node
-            elif self.syntax[i + offset] == "club":
-                if not node.isupper() and club == '':
-                    offset -= 1
-                club += ' ' + node
-            elif self.syntax[i + offset] == "nat":
+            elif self.syntax[i] == "club":
+                club += node
+            elif self.syntax[i] == "nat":
                 nat = node
-            elif self.syntax[i + offset] == "gender":
+            elif self.syntax[i] == "gender":
                 gender = node
-            elif "sub_cat" in self.syntax[i + offset]:
-                if '.' in node or node.isdigit() or node in self.special_codes:
-                    offset += 1
-                else:
-                    if not sub_cats:
-                        sub_cats = []
-                    sub_cats.append(self.syntax[i + offset].replace("sub_cat_", ""))
-            if self.syntax[i + offset] == "race":
-                node = node.replace('(', '').replace(')', '').strip()
-                if node not in self.special_codes and '.' not in node and not node.isdigit():
-                    offset -= 1
-                    continue
+            elif "sub_cat" in self.syntax[i]:
+                if node == "":
+                    sub_cats = []
+                sub_cats.append(self.syntax[i].replace("sub_cat_", ""))
+            if self.syntax[i] == "race":
+                node = node.replace('(', '').replace(')', '').replace('[', '').replace(']', '').strip()
                 if not races:
                     races = []
-                if node in self.special_codes:
-                    pos = int(races.pop().symbol.replace(".0", ""))
-                    offset -= 1
+                if "/" in node:
+                    pos = int(node.split("/")[0].replace(".0", ""))
+                    sym = node.split("/")[1]
                 else:
                     pos = int(node.replace(".0", ""))
-                races.append(Place(pos, node))
-
+                    sym = str(pos)
+                races.append(Place(pos, sym))
         return Sailor(name.strip(), sail_nr, gender, sub_cats, nat, races, club.strip())
 
     def get_competitiors(self):
@@ -146,8 +134,12 @@ class Analyzer:
 
     def get_results(self, discount: int = 0, races: int = None):
         """Get results"""
-        if not races or races < 1:
+        if not races:
             races = len(self.data[0].races)
+        elif races < 1:
+            while races < 1:
+                races += len(self.data[0].races)
+
         if races <= discount or discount < 0:
             raise ValueError("You cannot discount all races nor negative amount of races!")
         return sorted(self.data, key=lambda x: x.get_points_after(races, discount))
