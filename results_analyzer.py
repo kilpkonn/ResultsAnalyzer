@@ -1,4 +1,5 @@
 """Results analyzer."""
+import statistics
 
 
 class Place(object):
@@ -33,6 +34,21 @@ class Sailor:
         """Get total points."""
         return sum(x.points for x in self.races)
 
+    @property
+    def std_dev(self):
+        """Get standard deviation."""
+        return statistics.stdev(self.races)
+
+    @property
+    def best_race(self):
+        """Get place in best race."""
+        return min(self.races, key=lambda x: x.points)
+
+    def get_worst_race(self, discount: int = 0):
+        """Get place in worst race"""
+        discounted = sorted(self.races, key=lambda x: x.points, reverse=True)[:discount]
+        return max([x for x in self.races if x not in discounted], key=lambda x: x.points)
+
     def get_points_after(self, races: int, discount: int = 0):
         """Get points after x races."""
         points_to_discount = sum(sorted([x.points for x in self.races[:races]], reverse=True)[:discount])
@@ -58,7 +74,7 @@ class Analyzer:
         import csv
         self.data = []
         with open(file_name, 'r') as f:
-            lines = csv.reader(f, delimiter=",")
+            lines = csv.reader(f, delimiter=',')
             for i, line in enumerate(lines):
                 if i == 0:
                     self.try_get_syntax(line)
@@ -93,7 +109,7 @@ class Analyzer:
 
     def get_clean_data(self, line) -> Sailor:
         """Get clean data."""
-        name = ''
+        name = None
         sail_nr = None
         gender = None
         sub_cats = None
@@ -102,7 +118,7 @@ class Analyzer:
         club = ''
         for i, node in enumerate(line):
             if self.syntax[i] == "name":
-                name += node
+                name = node
             elif self.syntax[i] == "sail_nr":
                 sail_nr = node
             elif self.syntax[i] == "club":
