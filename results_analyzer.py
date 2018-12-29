@@ -30,26 +30,30 @@ class Sailor:
         self.club = club
 
     @property
-    def total_points(self):
+    def total_points(self) -> int:
         """Get total points."""
         return sum(x.points for x in self.races)
 
     @property
-    def std_dev(self):
+    def std_dev(self) -> float:
         """Get standard deviation."""
-        return statistics.stdev(self.races)
+        return statistics.stdev([x.points for x in self.races])
 
     @property
-    def best_race(self):
+    def best_race(self) -> Place:
         """Get place in best race."""
         return min(self.races, key=lambda x: x.points)
 
-    def get_worst_race(self, discount: int = 0):
+    def avg_place(self, discount: int = 0) -> float:
+        """Get average place"""
+        return self.get_points_after(len(self.races), discount) / (len(self.races) - discount)
+
+    def get_worst_race(self, discount: int = 0) -> Place:
         """Get place in worst race"""
         discounted = sorted(self.races, key=lambda x: x.points, reverse=True)[:discount]
         return max([x for x in self.races if x not in discounted], key=lambda x: x.points)
 
-    def get_points_after(self, races: int, discount: int = 0):
+    def get_points_after(self, races: int, discount: int = 0) -> int:
         """Get points after x races."""
         points_to_discount = sum(sorted([x.points for x in self.races[:races]], reverse=True)[:discount])
         return sum([x.points for x in self.races[:races]]) - points_to_discount
@@ -158,4 +162,7 @@ class Analyzer:
 
         if races <= discount or discount < 0:
             raise ValueError("You cannot discount all races nor negative amount of races!")
-        return sorted(self.data, key=lambda x: x.get_points_after(races, discount))
+        results = sorted(self.data, key=lambda x: x.get_points_after(races, discount))
+        for n in results:
+            n.races = n.races[:races]
+        return results
