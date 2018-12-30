@@ -28,7 +28,7 @@ class Sailor:
     """Sailor"""
 
     def __init__(self, name: str, sail_nr: str, gender: str, sub_categories: list, nationality: str, races: list,
-                 club: str):
+                 club: str, silver: int = None, gold: int = None):
         """Init."""
         self.name = name
         self.sail_nr = sail_nr
@@ -37,6 +37,8 @@ class Sailor:
         self.nationality = nationality
         self.races = races
         self.club = club
+        self.silver = silver
+        self.gold = gold
 
     @property
     def total_points(self) -> int:
@@ -120,6 +122,10 @@ class Analyzer:
                 syntax.append(f"sub_cat_{n}")  # something better here
             elif (n.lower().startswith('r') and n[1:].isdigit()) or n.lower().isdigit():
                 syntax.append("race")
+            elif n.lower() in ["silver", "poolfinaal", "hõbe", "hõbefinaal"]:
+                syntax.append("silver")
+            elif n.lower() in ["gold", "finaal", "kuldfinaal", "kuld"]:
+                syntax.append("gold")
             else:
                 syntax.append("null")
         self.syntax = syntax
@@ -136,6 +142,8 @@ class Analyzer:
         nat = None
         races = None
         club = ''
+        silver = None
+        gold = None
         for i, node in enumerate(line):
             if self.syntax[i] == "name":
                 name = node
@@ -151,7 +159,7 @@ class Analyzer:
                 if node == "":
                     sub_cats = []
                 sub_cats.append(self.syntax[i].replace("sub_cat_", ""))
-            if self.syntax[i] == "race":
+            elif self.syntax[i] == "race":
                 node = node.replace('(', '').replace(')', '').replace('[', '').replace(']', '').strip()
                 if not races:
                     races = []
@@ -162,7 +170,12 @@ class Analyzer:
                     pos = int(node.replace(".0", ""))
                     sym = str(pos)
                 races.append(Place(pos, sym))
-        return Sailor(name.strip(), sail_nr, gender, sub_cats, nat, races, club.strip())
+            elif self.syntax[i] == "silver":
+                silver = node
+            elif self.syntax[i] == "gold":
+                gold = node
+
+        return Sailor(name.strip(), sail_nr, gender, sub_cats, nat, races, club.strip(), silver, gold)
 
     def get_competitors(self) -> list:
         """Get competitors"""
