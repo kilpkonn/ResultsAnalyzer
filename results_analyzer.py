@@ -87,6 +87,13 @@ class Analyzer:
                 obj = self.get_clean_data(line)
                 self.data.append(obj)
 
+    def import_data(self, data: list):
+        """Import races."""
+        if isinstance(data, list) and isinstance(data[0], Sailor):
+            self.data = data
+        else:
+            raise ValueError("Invalid data type for importing, must be list[Sailor]!")
+
     def try_get_syntax(self, data) -> bool:
         syntax = []
         for n in data:
