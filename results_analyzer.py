@@ -10,6 +10,15 @@ class Place(object):
         self.points = points
         self.symbol = symbol
 
+    def __add__(self, other):
+        """Add."""
+        if isinstance(other, Place):
+            return Place(self.points + other.points, str(self.points + other.points))
+        elif isinstance(other, int):
+            return Place(self.points + other, str(self.points + other))
+        else:
+            raise ValueError("Invalid value for adding to place.")
+
     def __repr__(self):
         """Repr."""
         return self.symbol
