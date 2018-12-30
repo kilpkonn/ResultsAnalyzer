@@ -138,9 +138,9 @@ class Analyzer:
         name = None
         sail_nr = None
         gender = None
-        sub_cats = None
+        sub_cats = []
         nat = None
-        races = None
+        races = []
         club = ''
         silver = None
         gold = None
@@ -156,18 +156,17 @@ class Analyzer:
             elif self.syntax[i] == "gender":
                 gender = node
             elif "sub_cat" in self.syntax[i]:
-                if node == "":
-                    sub_cats = []
                 sub_cats.append(self.syntax[i].replace("sub_cat_", ""))
             elif self.syntax[i] == "race":
                 node = node.replace('(', '').replace(')', '').replace('[', '').replace(']', '').strip()
-                if not races:
-                    races = []
                 if '/' in node:
-                    pos = int(node.split('/')[0].replace(".0", ""))
+                    pos = int(node.split('/')[0].replace('.0', ''))
                     sym = node.split('/')[1]
+                elif ' ' in node:
+                    pos = int(node.split(' ')[0].replace('.0', ''))
+                    sym = node.split(' ')[1]
                 else:
-                    pos = int(node.replace(".0", ""))
+                    pos = int(node.replace('.0', ''))
                     sym = str(pos)
                 races.append(Place(pos, sym))
             elif self.syntax[i] == "silver":
