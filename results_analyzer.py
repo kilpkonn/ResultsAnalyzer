@@ -85,6 +85,11 @@ class Sailor:
         extra += sum([(i + 1)**7 * x.points * 10**-9 for i, x in enumerate(self.races)]) if calc_extras else 0
         return sum([x.points for x in self.races[:races]]) + extra - points_to_discount
 
+    def copy(self):
+        """Copy."""
+        return Sailor(self.name, self.sail_nr, self.gender, self.sub_categories, self.nationality, self.races.copy(),
+                      self.club, self.silver, self.gold)
+
     def __repr__(self):
         """Repr."""
         return f"Name: {self.name}, club: {self.club}, sail nr: {self.sail_nr}, races: {self.races}, " + \
@@ -185,7 +190,7 @@ class Analyzer:
 
     def get_competitors(self) -> list:
         """Get competitors."""
-        return self.data.copy()
+        return [x.copy() for x in self.data]
 
     def get_results(self, discount: int = 0, races: int = None) -> list:
         """Get results."""
