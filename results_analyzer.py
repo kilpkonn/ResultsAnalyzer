@@ -10,6 +10,20 @@ class Place(object):
         self.points = points
         self.symbol = symbol
 
+    def __le__(self, other):
+        """Le."""
+        if isinstance(other, Place):
+            return other.points < self.points
+        else:
+            raise ValueError(f"Cannot compare {type(other)} and Place!")
+
+    def __ge__(self, other):
+        """Ge."""
+        if isinstance(other, Place):
+            return other.points > self.points
+        else:
+            raise ValueError(f"Cannot compare {type(other)} and Place!")
+
     def __add__(self, other):
         """Add."""
         if isinstance(other, Place):
@@ -64,10 +78,12 @@ class Sailor:
         discounted = sorted(self.races, key=lambda x: x.points, reverse=True)[:discount]
         return max([x for x in self.races if x not in discounted], key=lambda x: x.points)
 
-    def get_points_after(self, races: int, discount: int = 0) -> int:
+    def get_points_after(self, races: int, discount: int = 0, calc_extras: bool = False) -> int:
         """Get points after x races."""
         points_to_discount = sum(sorted([x.points for x in self.races[:races]], reverse=True)[:discount])
-        return sum([x.points for x in self.races[:races]]) - points_to_discount
+        extra = sum([(i + 1) * x.points * 10**-6 for i, x in enumerate(sorted(self.races, key=lambda x: x.points))])
+        extra += sum([(i + 1)**7 * x.points * 10**-9 for i, x in enumerate(self.races)]) if calc_extras else 0
+        return sum([x.points for x in self.races[:races]]) + extra - points_to_discount
 
     def __repr__(self):
         """Repr."""
@@ -120,7 +136,7 @@ class Analyzer:
                 syntax.append("nat")
             elif n.lower() in ["u21", "junior", "u19"]:
                 syntax.append(f"sub_cat_{n}")  # something better here
-            elif (n.lower().startswith('r') and n[1:].isdigit()) or n.lower().isdigit():
+            elif ((n.lower().startswith('r') or n.lower().startswith('q')) and n[1:].isdigit()) or n.lower().isdigit():
                 syntax.append("race")
             elif n.lower() in ["silver", "poolfinaal", "hõbe", "hõbefinaal"]:
                 syntax.append("silver")
@@ -190,7 +206,7 @@ class Analyzer:
 
         if races <= discount or discount < 0:
             raise ValueError("You cannot discount all races nor negative amount of races!")
-        results = sorted(self.data, key=lambda x: x.get_points_after(races, discount))
+        results = sorted(self.data, key=lambda x: x.get_points_after(races, discount, True))
         for n in results:
             n.races = n.races[:races]
         return results
