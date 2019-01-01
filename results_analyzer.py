@@ -175,29 +175,20 @@ class Analyzer:
                 sub_cats.append(self.syntax[i].replace("sub_cat_", ""))
             elif self.syntax[i] == "race":
                 node = node.replace('(', '').replace(')', '').replace('[', '').replace(']', '').strip()
-                if '/' in node:
-                    pos = int(node.split('/')[0].replace('.0', ''))
-                    sym = node.split('/')[1]
-                elif ' ' in node:
-                    pos = int(node.split(' ')[0].replace('.0', ''))
-                    sym = node.split(' ')[1]
-                else:
-                    pos = int(node.replace('.0', ''))
-                    sym = str(pos)
-                races.append(Place(pos, sym))
+                races.append(self._get_clean_place(node))
             elif self.syntax[i] == "silver":
-                silver = node
+                silver = self._get_clean_place(node) if node != '' else None
             elif self.syntax[i] == "gold":
-                gold = node
+                gold = self._get_clean_place(node) if node != '' else None
 
         return Sailor(name.strip(), sail_nr, gender, sub_cats, nat, races, club.strip(), silver, gold)
 
     def get_competitors(self) -> list:
-        """Get competitors"""
+        """Get competitors."""
         return self.data.copy()
 
     def get_results(self, discount: int = 0, races: int = None) -> list:
-        """Get results"""
+        """Get results."""
         if not races:
             races = len(self.data[0].races)
         elif races < 1:
@@ -210,3 +201,29 @@ class Analyzer:
         for n in results:
             n.races = n.races[:races]
         return results
+
+    def get_results_final(self, discount: int = 0, races: int = None):
+        """Get results with finals."""
+        results = self.get_results(discount=discount, races=races)
+        results[3:10] = sorted(results[3:10], key=lambda x: x.silver.points)
+        results[:4] = sorted(results[:4], key=lambda x: x.gold.points)
+        return results
+
+    def get_results_final_gold(self, discount: int = 0, races: int = None):
+        """Get results with finals new points system."""
+        results = self.get_results_final(discount=discount, races=races)
+        results[4:10] = sorted(results[4:10], key=lambda x: x.get_points_after(races, discount)+x.silver.points)
+        return results
+
+    def _get_clean_place(self, input: str) -> Place:
+        """Get clean place."""
+        if '/' in input:
+            pos = int(input.split('/')[0].replace('.0', ''))
+            sym = input.split('/')[1]
+        elif ' ' in input:
+            pos = int(input.split(' ')[0].replace('.0', ''))
+            sym = input.split(' ')[1]
+        else:
+            pos = int(input.replace('.0', ''))
+            sym = str(pos)
+        return Place(pos, sym)
