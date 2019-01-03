@@ -93,6 +93,14 @@ class Sailor:
         return Sailor(self.name, self.sail_nr, self.gender, self.sub_categories, self.nationality, self.races.copy(),
                       self.club, self.silver, self.gold)
 
+    def fleet_races(self, races):
+        if not races:
+            races = len(self.races)
+        elif races < 1:
+            while races < 1:
+                races += len(self.races)
+        self.races = self.races[:races]
+
     def __repr__(self):
         """Repr."""
         return f"Name: {self.name}, club: {self.club}, sail nr: {self.sail_nr}, races: {self.races}, silver: {self.silver}, gold: {self.gold} " + \
@@ -215,6 +223,8 @@ class Analyzer:
         results = self.get_results(discount=discount, races=races)
         results[3:10] = sorted(results[3:10], key=lambda x: x.silver.points)
         results[:4] = sorted(results[:4], key=lambda x: x.gold.points)
+        for i in self.data:
+            i.fleet_races(races)
         return results
 
     def get_results_final_gold(self, discount: int = 0, races: int = None):
@@ -225,6 +235,8 @@ class Analyzer:
             if results[i+3].get_points_after(races, discount)+results[i+3].silver.points == results[i+4].get_points_after(races, discount)+results[i+4].silver.points:
                 if results[i+3].get_points_after(races, discount) > results[i+4].get_points_after(races, discount):
                     results[i+3], results[i+4] = results[i+4], results[i+3]
+        for i in self.data:
+            i.fleet_races(races)
         return results
 
     def _get_clean_place(self, input: str) -> Place:

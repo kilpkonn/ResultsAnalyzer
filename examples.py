@@ -1,6 +1,10 @@
 """Examples."""
 from results_analyzer import Analyzer
 from results_analyzer import Place
+from numpy import array
+import numpy as np
+from scipy.stats import spearmanr
+from scipy.stats import kendalltau
 
 def write_file(f, original, analyzed, key: str = "sama"):
     for i, line in enumerate(original):
@@ -63,7 +67,17 @@ def write_file(f, original, analyzed, key: str = "sama"):
             f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>6s}\t{7:>4s}\t{8:>7d}".format(i + 1, analyzed[i].name, analyzed[i].club, races_new, total_new, nett_new, silver_new, gold_new, change))
             f.write("\n")
     f.write("-"*303)
-
+def create_array(list1, list2):
+    x = []
+    y = []
+    for i, line in enumerate(list1):
+        x.append(i+1)
+        for j, line2 in enumerate(list2):
+            if line.name == line2.name:
+                y.append(j+1)
+        if i == 9:
+            break
+    return(x,y)
 
 
 if __name__ == "__main__":
@@ -136,8 +150,20 @@ if __name__ == "__main__":
         for n in new_analyzer_2.get_results(discount=1):
             print(n)
         print('-' * 100)
-
         results_newtonew = analyzer.get_results_final(discount=1)
+        x1, y1 = create_array(results_original, results_newtoold_1)
+        x2, y2 = create_array(results_original, results_newtoold_2)
+        x3, y3 = create_array(results_original, results_newtoold_3)
+        x = x1 + x2 + x3
+        y = y1 + y2 + y3
+        x = array(x)
+        y = array(y)
+        print(x,y)
+        print(np.corrcoef(x, y))
+        print(spearmanr(x, y))
+        print(kendalltau(x, y))
+        correlation = round(spearmanr(x, y)[0], 2)
+
         f = open("example_results.txt", "w")
         write_file(f, results_original, results_newtoold_1, key="uus")
         f.write("\n")
@@ -146,6 +172,9 @@ if __name__ == "__main__":
         write_file(f, results_original, results_newtoold_3, key="uus")
         f.write("\n")
         write_file(f, results_original, results_newtonew)
+        f.write("\n")
+        f.write("correlation = ")
+        f.write(str(correlation))
         f.close()
     else:
         results_original_old = analyzer.get_results(discount=1)
