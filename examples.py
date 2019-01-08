@@ -1,7 +1,7 @@
 """Examples."""
 from results_analyzer import Analyzer
-from results_analyzer import Place
 from year import Regatta
+from  year import Season
 from numpy import array
 import numpy as np
 from scipy.stats import spearmanr
@@ -98,6 +98,7 @@ def write_file(f, original, analyzed, key: str = "same"):
             f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>6s}\t{7:>4s}\t{8:>7d}".format(i + 1, analyzed[i].name, analyzed[i].club, races_new, total_new, nett_new, silver_new, gold_new, change))
             f.write("\n")
     f.write("-"*303)
+    f.write("\n")
 
 def create_array(list1, list2):
     x = []
@@ -111,139 +112,69 @@ def create_array(list1, list2):
             break
     return(x,y)
 
-
-def year_results(result, list_1, discount: int = 0, races: int = None):
-    res = analyzer.get_results(discount=discount, races=races)
-    for i, j in enumerate(list_1):
-        got = False
-        top = False
-        for k in res[:3]:
-            if j.name == k.name:
-                point = [50 - i, 3 - res.index(k)]
-                top = True
-        if top == False:
-            point = [50 - i]
-        for k in result:
-            if j.name in k[0]:
-                k.append(point)
-                got = True
-        if not got:
-            result.append([j.name, point])
-
-
-def sorted_year(list_1):
-    for i in list_1:
-        total = 0
-        for j in i[1:]:
-            total = total + sum(j)
-        i.append(total)
-    list_sort = sorted(list_1, key=lambda x: x[len(x) - 1], reverse=True)
-
-    for i, j in enumerate(list_sort):
-        if i == len(list_sort)-1:
+def create_array_season(list1, list2):
+    x = []
+    y = []
+    for i, line in enumerate(list1):
+        x.append(i+1)
+        for j, line2 in enumerate(list2):
+            if line[0] == line2[0]:
+                y.append(j+1)
+        if i == 19:
             break
-        if j[len(j) - 1] == list_sort[i + 1][len(list_sort[i + 1]) - 1]:
-            equal = True
-            first = []
-            second = []
-            for a in range(len(j[1:len(j) - 1])):
-                first.append(j[a + 1][0])
-                second.append(list_sort[i + 1][a + 1][0])
-            first_1 = sorted(first, reverse=True)
-            second_2 = sorted(second, reverse=True)
-            for a in range(len(first_1)):
-                if first_1[a] != second_2[a]:
-                    if first_1[a] < second_2[a]:
-                        list_sort[i], list_sort[i + 1] = list_sort[i + 1], list_sort[i]
-                    equal = False
-            if equal == True:
-                if first[len(first) - 1] < second[len(second) - 1]:
-                    list_sort[i], list_sort[i + 1] = list_sort[i + 1], list_sort[i]
-    return list_sort
+    return(x,y)
+
+def add_row(files, row):
+    cup = ""
+    offset = 0
+    for j in range(len(files)):
+        if j + offset < len(row[1][:len(row[1]) - 2]):
+            if j + 1 == row[1][j + offset].number and row[1][j + offset].extra != 0:
+                cup = cup + "\t" + format(row[1][j + offset].points, " >3") + "\t" + format(row[1][j + offset].extra,
+                                                                                            " >1")
+            elif j + 1 == row[1][j + offset].number and row[1][j + offset].extra == 0:
+                cup = cup + "\t" + format(row[1][j + offset].points, " >3") + "\t" + format("", " >1")
+            elif j + 1 < row[1][j + offset].number:
+                cup = cup + "\t" + format("", " >3") + "\t" + format("", " >1")
+                offset = offset - 1
+        else:
+            cup = cup + "\t" + format("", " >3") + "\t" + format("", " >1")
+    return cup
+
+def write_year(f, original, converted, files):
+    for i, row in enumerate(original):
+        for k in original:
+            if converted[i][0] == k[0]:
+                change = original.index(k) - i
+        if i == 0:
+            cupname = ""
+            for j in range(len(files)):
+                cupname = cupname + "\t" + format(str(j+1), ">3") + "\t" + format("", " >1")
+            f.write("{0:>3s}\t{1:<25s}\t{2:>30s}\t{3:>6s}".format("Pos", "Name", cupname, "Total"))
+            f.write("\t" + "|" + "\t")
+            f.write("{0:>3s}\t{1:<25s}\t{2:>30s}\t{3:>6s}\t{4:>7s}".format("Pos", "Name", cupname, "Total", "Change"))
+            f.write("\n")
+        cup = add_row(files, row)
+        cup1 = add_row(files, converted[i])
+        f.write("{0:>3d}\t{1:<25s}\t{2:>30s}\t{3:>6}".format(i+1, row[0], cup, row[1][len(row[1])-2]))
+        f.write("\t"+"|"+"\t")
+        f.write("{0:>3d}\t{1:<25s}\t{2:>30s}\t{3:>6}\t{4:>7}".format(i+1, converted[i][0], cup1, converted[i][1][len(row[1])-2], change))
+        f.write("\n")
+    f.write("-" * 303)
+    f.write("\n")
 
 
 if __name__ == "__main__":
     analyzer = Analyzer()
+    year = "2014_"
     files = ["./example_data.csv", "./example_data_2.csv"]
-    print(Regatta("./example_data.csv").get_results_finals())
-    year_original = []
-    year_1 = []
-    year_2 = []
-    year_3 = []
     for k, file in enumerate(files):
+        regatta = Regatta(file)
         analyzer.load_results(file)
-        for n in analyzer.get_competitors():
-            print(f"{n}, worst race: {n.get_worst_race()}, best race: {n.best_race}, avg: {n.avg_place()}")
-        print('-' * 100)
-
-        if analyzer.get_competitors()[0].gold:
-            results_original = analyzer.get_results_final_gold(discount=1)
-            for i, n in enumerate(results_original):
-                if not n.silver:
-                    silver = ""
-                if n.silver:
-                    silver = str(n.silver)
-                if not n.gold:
-                    gold = ""
-                if n.gold:
-                    gold = str(n.gold)
-                total = int(n.get_points_after(races=len(n.races)))
-                nett = int(n.get_points_after(races=len(n.races), discount=1))
-                races = '\t'.join([format(str(x), '>3') for x in n.races])
-                races_syntax = '\t'.join([format("R"+str(x+1), '>3') for x in range(len(n.races))])
-                if i == 0:
-                    print("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}\t{6:>6s}\t{7:>4s}".format("Pos", "Name", "Club", races_syntax, "Total", "Nett", "Silver", "Gold"))
-                print(line(i+1, n.name, n.club, races, total, nett, "\t", silver, gold, key="uus", original=True))
-                # print("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>6s}\t{7:>4s}".format(i+1, n.name, n.club, races, total, nett, silver, gold))
-            print('-' * 100)
-
-            results_newtoold_1 = analyzer.get_results(discount=1)
-            for n in analyzer.get_results(discount=1):
-                print(n)
-            print('-' * 100)
-            new = analyzer.get_competitors()
-            for i in new:
-                if not i.silver and not i.gold:
-                    i.races.append(Place(round(i.avg_place()), str(round(i.avg_place()))))
-                elif i.silver and i.gold:
-                    i.races.append(i.gold)
-                elif i.gold and not i.silver:
-                    i.races.append(i.gold)
-                elif i.silver and not i.gold:
-                    i.races.append(i.silver + 3)
-
-            new_analyzer = Analyzer()
-            new_analyzer.import_data(new)
-            results_newtoold_2 = new_analyzer.get_results(discount=1)
-            for n in new_analyzer.get_results(discount=1):
-                print(n)
-            print('-' * 100)
-
-            new_2 = analyzer.get_competitors()
-            for i in new_2:
-                if not i.silver and not i.gold:
-                    i.races.append(i.races[len(i.races)-2])
-                    i.races.append(i.races[len(i.races) - 2])
-                elif i.silver and i.gold:
-                    i.races.append(i.silver)
-                    i.races.append(i.gold)
-                elif i.gold and not i.silver:
-                    i.races.append(i.races[len(i.races)-2])
-                    i.races.append(i.gold)
-                elif i.silver and not i.gold:
-                    i.races.append(i.silver)
-                    i.races.append(i.races[len(i.races) - 2])
-
-            new_analyzer_2 = Analyzer()
-            new_analyzer_2.import_data(new_2)
-            results_newtoold_3 = new_analyzer_2.get_results(discount=1)
-            for n in new_analyzer_2.get_results(discount=1):
-                print(n)
-            print('-' * 100)
-            results_newtonew = analyzer.get_results_final(discount=1)
-            x1, y1 = create_array(results_original, results_newtoold_1)
-            x2, y2 = create_array(results_original, results_newtoold_2)
-            x3, y3 = create_array(results_original, results_newtoold_3)
+        if analyzer.is_finals():
+            x1, y1 = create_array(regatta.get_results_normal_finals(), regatta.get_results_normal())
+            x2, y2 = create_array(regatta.get_results_normal_finals(), regatta.get_results_2())
+            x3, y3 = create_array(regatta.get_results_normal_finals(), regatta.get_results_3())
             x = x1 + x2 + x3
             y = y1 + y2 + y3
             x = array(x)
@@ -253,132 +184,129 @@ if __name__ == "__main__":
             print(kendalltau(x, y))
             correlation = round(spearmanr(x, y)[0], 2)
 
-            year_results(year_original, results_original, discount=1)
-            year_results(year_1, results_newtoold_1, discount=1)
-            year_results(year_2, results_newtoold_2, discount=1)
-            year_results(year_3, results_newtoold_3, discount=1)
+            x1, y1 = create_array(regatta.get_results_normal_finals(), regatta.get_results_4())
+            x = array(x1)
+            y = array(y1)
+            correlation1 = round(spearmanr(x, y)[0], 2)
 
-            filew = "2016_"+str(k+1)+".csv"
+            filew = year+str(k+1)+".txt"
             f = open(filew, "w")
-            write_file(f, Regatta(file).get_results_normal_finals(), Regatta(file).get_results_normal(), key="new")
-            f.write("\n")
-            write_file(f, results_original, results_newtoold_2, key="new")
-            f.write("\n")
-            write_file(f, results_original, results_newtoold_3, key="new")
-            f.write("\n")
-            write_file(f, results_original, results_newtonew)
-            f.write("\n")
+            write_file(f, regatta.get_results_normal_finals(), regatta.get_results_normal(), key="new")
+            write_file(f, regatta.get_results_normal_finals(), regatta.get_results_2(), key="new")
+            write_file(f, regatta.get_results_normal_finals(), regatta.get_results_3(), key="new")
             f.write("correlation = ")
             f.write(str(correlation))
+            f.write("\n")
+            f.write("\n")
+            f.write("-" * 303)
+            f.write("\n")
+            write_file(f, regatta.get_results_normal_finals(), regatta.get_results_4())
+            f.write("correlation = ")
+            f.write(str(correlation1))
             f.close()
         else:
-            results_original_old = analyzer.get_results(discount=1)
-
-            new_3_data = analyzer.get_competitors()
-            new_analyzer_3 = Analyzer()
-            new_analyzer_3.import_data(new_3_data)
-            new_3 = new_analyzer_3.get_results(discount=1)
-            for i in new_3[:10]:
-                i.silver = i.races[len(i.races)-2]
-                i.gold = i.races[len(i.races)-1]
-            new_analyzer_3.import_data(new_3)
-            results = new_analyzer_3.get_results_final(discount=1)
-            for n, i in enumerate(results[:4]):
-                i.silver = None
-                i.gold = Place(n+1, str(n+1))
-            for n, i in enumerate(results[3:10]):
-                if n == 0:
-                    i.silver = Place(n + 1, str(n + 1))
-                else:
-                    i.gold = None
-                    i.silver = Place(n+1, str(n+1))
-            results_oldtonew_1 = results
-            for i in results:
-                print(i)
-            print('-' * 100)
-
-            new_4_data = analyzer.get_competitors()
-            new_analyzer_4 = Analyzer()
-            new_analyzer_4.import_data(new_3_data)
-            new_4 = new_analyzer_4.get_results(discount=1, races=-2)
-            for i in new_4[:10]:
-                i.silver = i.races[len(i.races) - 2]
-                i.gold = i.races[len(i.races) - 1]
-            new_analyzer_4.import_data(new_4)
-            results = new_analyzer_4.get_results_final(discount=1, races=-2)
-            for n, i in enumerate(results[:4]):
-                i.silver = None
-                i.gold = Place(n + 1, str(n + 1))
-            for n, i in enumerate(results[3:10]):
-                if n == 0:
-                    i.silver = Place(n + 1, str(n + 1))
-                else:
-                    i.gold = None
-                    i.silver = Place(n + 1, str(n + 1))
-            results_oldtonew_2 = results
-            for i in results:
-                print(i)
-
-            new_5_data = analyzer.get_competitors()
-            new_analyzer_5 = Analyzer()
-            new_analyzer_5.import_data(new_5_data)
-            new_5 = new_analyzer_5.get_results(discount=1, races=-1)
-            for i in new_5[:10]:
-                i.silver = i.races[len(i.races) - 1]
-                i.gold = i.races[len(i.races) - 1]
-            new_analyzer_5.import_data(new_5)
-            results = new_analyzer_5.get_results_final(discount=1, races=-1)
-            for n, i in enumerate(results[:4]):
-                i.silver = None
-                i.gold = Place(n + 1, str(n + 1))
-            for n, i in enumerate(results[3:10]):
-                if n == 0:
-                    i.silver = Place(n + 1, str(n + 1))
-                else:
-                    i.gold = None
-                    i.silver = Place(n + 1, str(n + 1))
-            results_oldtonew_3 = results
-
-            x1, y1 = create_array(results_original_old, results_oldtonew_1)
-            x2, y2 = create_array(results_original_old, results_oldtonew_2)
-            x3, y3 = create_array(results_original_old, results_oldtonew_3)
+            x1, y1 = create_array(regatta.get_results_normal(), regatta.get_results_newfinals_1())
+            x2, y2 = create_array(regatta.get_results_normal(), regatta.get_results_newfinals_2())
+            x3, y3 = create_array(regatta.get_results_normal(), regatta.get_results_newfinals_3())
             x = x1 + x2 + x3
             y = y1 + y2 + y3
             x = array(x)
             y = array(y)
             correlation = round(spearmanr(x, y)[0], 2)
 
-            year_results(year_original, results_original_old, discount=1)
-            year_results(year_1, results_oldtonew_1, discount=1)
-            year_results(year_2, results_oldtonew_2, discount=1, races= -2)
-            year_results(year_3, results_oldtonew_3, discount=1, races= -1)
+            x4, y4 = create_array(regatta.get_results_normal(), regatta.get_results_oldfinals_1())
+            x5, y5 = create_array(regatta.get_results_normal(), regatta.get_results_oldfinals_2())
+            x6, y6 = create_array(regatta.get_results_normal(), regatta.get_results_oldfinals_3())
+            x = x4 + x5 + x6
+            y = y4 + y5 + y6
+            x = array(x)
+            y = array(y)
+            correlation1 = round(spearmanr(x, y)[0], 2)
 
-            filew = "2016_" + str(k + 1) + ".csv"
+            filew = year + str(k + 1) + ".txt"
             f = open(filew, "w")
-            write_file(f, results_original_old, results_oldtonew_1, key="old")
-            f.write("\n")
-            write_file(f, results_original_old, results_oldtonew_2, key="old")
-            f.write("\n")
-            write_file(f, results_original_old, results_oldtonew_3, key="old")
-            f.write("\n")
+            write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_1(), key="old")
+            write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_2(), key="old")
+            write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_3(), key="old")
             f.write("correlation = ")
             f.write(str(correlation))
+            f.write("\n")
+            f.write("\n")
+            f.write("-" * 303)
+            f.write("\n")
+            write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(), key="old")
+            write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_2(), key="old")
+            write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_3(), key="old")
+            f.write("correlation = ")
+            f.write(str(correlation1))
             f.close()
 
-    year_original = sorted_year(year_original)
-    year_1 = sorted_year(year_1)
-    year_2 = sorted_year(year_2)
-    year_3 = sorted_year(year_3)
+    season = Season(files)
+    if int(year.replace("_", "")) > 2014:
 
-    for i in year_1:
-        linew = ''
-        for j in i[1:len(i)-1]:
-            if len(j) == 2:
-                linew = linew + "\t" + str(j[0]) +"\t"+ str(j[1])
-            else:
-                linew = linew +"\t"+ str(j[0]) +"\t" + ""
-        linew.strip()
-        print("{0:<25s}\t{1:>}\t{2:3d}".format(i[0], linew, i[len(i)-1]))
+        x1, y1 = create_array_season(season.get_results_finals(), season.get_results())
+        x2, y2 = create_array_season(season.get_results_finals(), season.get_results_old1())
+        x3, y3 = create_array_season(season.get_results_finals(), season.get_results_old2())
+        x = x1 + x2 + x3
+        y = y1 + y2 + y3
+        x = array(x)
+        y = array(y)
+        correlation = round(spearmanr(x, y)[0], 2)
 
+        x4, y4 = create_array_season(season.get_results_finals(), season.get_results_old3())
+        x = array(x4)
+        y = array(y4)
+        correlation1 = round(spearmanr(x, y)[0], 2)
 
+        filew = year + "conclusion" + ".txt"
+        f = open(filew, "w")
+        write_year(f, season.get_results_finals(), season.get_results(), files)
+        write_year(f, season.get_results_finals(), season.get_results_old1(), files)
+        write_year(f, season.get_results_finals(), season.get_results_old2(), files)
+        f.write("correlation = ")
+        f.write(str(correlation))
+        f.write("\n")
+        f.write("\n")
+        f.write("-" * 303)
+        f.write("\n")
+        write_year(f, season.get_results_finals(), season.get_results_old3(), files)
+        f.write("correlation = ")
+        f.write(str(correlation1))
+        f.close()
+    else:
+        x1, y1 = create_array_season(season.get_results(), season.get_results_new1())
+        x2, y2 = create_array_season(season.get_results(), season.get_results_new2())
+        x3, y3 = create_array_season(season.get_results(), season.get_results_new3())
+        x = x1 + x2 + x3
+        y = y1 + y2 + y3
+        x = array(x)
+        y = array(y)
+        correlation = round(spearmanr(x, y)[0], 2)
+
+        x1, y1 = create_array_season(season.get_results(), season.get_results_new4())
+        x2, y2 = create_array_season(season.get_results(), season.get_results_new5())
+        x3, y3 = create_array_season(season.get_results(), season.get_results_new6())
+        x = x1 + x2 + x3
+        y = y1 + y2 + y3
+        x = array(x)
+        y = array(y)
+        correlation1 = round(spearmanr(x, y)[0], 2)
+
+        filew = year + "conclusion" + ".txt"
+        f = open(filew, "w")
+        write_year(f, season.get_results(), season.get_results_new1(), files)
+        write_year(f, season.get_results(), season.get_results_new2(), files)
+        write_year(f, season.get_results(), season.get_results_new3(), files)
+        f.write("correlation = ")
+        f.write(str(correlation))
+        f.write("\n")
+        f.write("\n")
+        f.write("-" * 303)
+        f.write("\n")
+        write_year(f, season.get_results(), season.get_results_new4(), files)
+        write_year(f, season.get_results(), season.get_results_new5(), files)
+        write_year(f, season.get_results(), season.get_results_new6(), files)
+        f.write("correlation = ")
+        f.write(str(correlation1))
+        f.close()
 

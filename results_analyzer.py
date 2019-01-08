@@ -222,9 +222,11 @@ class Analyzer:
         """Get results with finals."""
         results = self.get_results(discount=discount, races=races)
         results[3:10] = sorted(results[3:10], key=lambda x: x.silver.points)
+        results[3].silver = Place(100, "100")
         results[:4] = sorted(results[:4], key=lambda x: x.gold.points)
         for i in self.data:
             i.fleet_races(races)
+        results = self.get_real_places(results)
         return results
 
     def get_results_final_gold(self, discount: int = 0, races: int = None):
@@ -237,8 +239,6 @@ class Analyzer:
                     if results[i+4].get_points_after(races, discount) > results[i+5].get_points_after(races, discount):
                         results[i+4], results[i+5] = results[i+5], results[i+4]
 
-        for i in self.data:
-            i.fleet_races(races)
         return results
 
     def _get_clean_place(self, input: str) -> Place:
@@ -253,6 +253,29 @@ class Analyzer:
             pos = int(input.replace('.0', ''))
             sym = str(pos)
         return Place(pos, sym)
+
+    def is_finals(self):
+        if self.get_competitors()[0].gold:
+            return True
+        else:
+            return False
+
+    def get_real_places(self, list_1):
+        results = list_1
+        for n, i in enumerate(results[:4]):
+            if i.silver:
+                if i.silver.points != 100:
+                    i.silver = None
+                elif i.silver.points == 100:
+                    i.silver = Place(1, "1")
+            else:
+                i.silver = None
+            i.gold = Place(n + 1, str(n + 1))
+        for n, i in enumerate(results[4:10]):
+            i.gold = None
+            i.silver = Place(n + 2, str(n + 2))
+        return results
+
 
 
 
