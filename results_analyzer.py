@@ -78,11 +78,14 @@ class Sailor:
         discounted = sorted(self.races, key=lambda x: x.points, reverse=True)[:discount]
         return max([x for x in self.races if x not in discounted], key=lambda x: x.points)
 
-    def get_points_after(self, races: int, discount: int = 0, calc_extras: bool = False) -> int:
+    def get_points_after(self, races: int, discount: int = 0, calc_extras: bool = False):
         """Get points after x races."""
-        points_to_discount = sum(sorted([x.points for x in self.races[:races]], reverse=True)[:discount])
-        extra = sum([(i + 1) * x.points * 10**-6 for i, x in enumerate(sorted(self.races, key=lambda x: x.points))])
-        extra += sum([(i + 1)**7 * x.points * 10**-9 for i, x in enumerate(self.races)]) if calc_extras else 0
+        points_to_discount = sum(sorted([x.points for x in self.races[:races] if x.symbol != 'DNE'], reverse=True)[:discount])
+        if calc_extras:
+            extra = sum([(i + 1)**-1 * x.points * 10**-3 for i, x in enumerate(sorted(self.races, key=lambda x: x.points))])
+            extra += sum([(i + 1)**7 * x.points * 10**-15 for i, x in enumerate(self.races)])
+        else:
+            extra = 0
         return sum([x.points for x in self.races[:races]]) + extra - points_to_discount
 
     def copy(self):
@@ -90,9 +93,17 @@ class Sailor:
         return Sailor(self.name, self.sail_nr, self.gender, self.sub_categories, self.nationality, self.races.copy(),
                       self.club, self.silver, self.gold)
 
+    def fleet_races(self, races):
+        if not races:
+            races = len(self.races)
+        elif races < 1:
+            while races < 1:
+                races += len(self.races)
+        self.races = self.races[:races]
+
     def __repr__(self):
         """Repr."""
-        return f"Name: {self.name}, club: {self.club}, sail nr: {self.sail_nr}, races: {self.races}, " + \
+        return f"Name: {self.name}, club: {self.club}, sail nr: {self.sail_nr}, races: {self.races}, silver: {self.silver}, gold: {self.gold} " + \
             f"points: {self.total_points}"
 
 
@@ -203,8 +214,8 @@ class Analyzer:
         if races <= discount or discount < 0:
             raise ValueError("You cannot discount all races nor negative amount of races!")
         results = sorted(self.data, key=lambda x: x.get_points_after(races, discount, True))
-        for n in results:
-            n.races = n.races[:races]
+        """for n in results:
+            n.races = n.races[:races]"""
         return results
 
     def get_results_final(self, discount: int = 0, races: int = None):
@@ -212,12 +223,22 @@ class Analyzer:
         results = self.get_results(discount=discount, races=races)
         results[3:10] = sorted(results[3:10], key=lambda x: x.silver.points)
         results[:4] = sorted(results[:4], key=lambda x: x.gold.points)
+        for i in self.data:
+            i.fleet_races(races)
         return results
 
     def get_results_final_gold(self, discount: int = 0, races: int = None):
         """Get results with finals new points system."""
         results = self.get_results_final(discount=discount, races=races)
         results[4:10] = sorted(results[4:10], key=lambda x: x.get_points_after(races, discount)+x.silver.points)
+        for j in range(len(results[4:10])-1):
+            for i in range(len(results[4:10])-1):
+                if results[i+4].get_points_after(races, discount)+results[i+4].silver.points == results[i+5].get_points_after(races, discount)+results[i+5].silver.points:
+                    if results[i+4].get_points_after(races, discount) > results[i+5].get_points_after(races, discount):
+                        results[i+4], results[i+5] = results[i+5], results[i+4]
+
+        for i in self.data:
+            i.fleet_races(races)
         return results
 
     def _get_clean_place(self, input: str) -> Place:
@@ -232,3 +253,7 @@ class Analyzer:
             pos = int(input.replace('.0', ''))
             sym = str(pos)
         return Place(pos, sym)
+
+
+
+
