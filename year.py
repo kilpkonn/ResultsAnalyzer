@@ -8,6 +8,14 @@ class Participant:
         self.extra = extra
 
 
+class Competition:
+    def __init__(self, number: int, points: int, extra: int):
+        self.number = number
+        self.points = points
+        self.extra = extra
+        self.total = self.points + self.extra
+
+
 class Regatta:
     def __init__(self, data_path: str):
         self.analyzer = Analyzer()
@@ -106,7 +114,6 @@ class Regatta:
         new_analyzer_3 = Analyzer()
         new_analyzer_3.import_data(new_3)
         results = new_analyzer_3.get_results_final_gold(discount=1)
-        results = self.get_real_places(results)
         return results
 
     def get_results_oldfinals_1(self):
@@ -122,7 +129,6 @@ class Regatta:
         new_analyzer_4 = Analyzer()
         new_analyzer_4.import_data(new_4)
         results = new_analyzer_4.get_results_final_gold(discount=1, races=-2)
-        results = self.get_real_places(results)
         return results
 
     def get_results_oldfinals_2(self):
@@ -130,119 +136,186 @@ class Regatta:
         new_analyzer_4 = Analyzer()
         new_analyzer_4.import_data(new_4)
         results = new_analyzer_4.get_results_final(discount=1, races=-2)
-        results = self.get_real_places(results)
         return results
 
     def get_results_newfinals_3(self):
-        new_5 = self.convert_finals_3
+        new_5 = self.convert_finals_3()
         new_analyzer_5 = Analyzer()
         new_analyzer_5.import_data(new_5)
         results = new_analyzer_5.get_results_final_gold(discount=1, races=-1)
-        results = self.get_real_places(results)
         return results
 
     def get_results_oldfinals_3(self):
-        new_5 = self.convert_finals_3
+        new_5 = self.convert_finals_3()
         new_analyzer_5 = Analyzer()
         new_analyzer_5.import_data(new_5)
         results = new_analyzer_5.get_results_final(discount=1, races=-1)
-        results = self.get_real_places(results)
         return results
 
 
 
 class Season:
 
-    def __init__(self):
-        self.regattas = [Regatta("path") for x in range(3)]
+    def __init__(self, regattas):
+        self.regattas = regattas
+
+    def sort_year(self, dic):
+        for i in dic:
+            total = 0
+            for j in dic[i]:
+                total = total + j.total
+            extra = sum([(i + 1) ** -1 * x.total * 10 ** -3 for i, x in enumerate(sorted(dic[i], key=lambda x: x.total))])
+            extra += sum([(i + 1) ** 7 * x.total * 10 ** -15 for i, x in enumerate(dic[i])])
+            dic[i].append(total)
+            dic[i].append(extra)
+        return sorted(dic.items(), key=lambda x: x[1][len(x[1]) - 1], reverse=True)
 
     def get_results(self):
         results = {}
-        for regatta in self.regattas:
-            for i, sailor in enumerate(regatta.get_results_normal()):
+        for n, regatta in enumerate(self.regattas):
+            newregatta = Regatta(regatta)
+            for i, sailor in enumerate(newregatta.get_results_normal()):
                 if i < 3:
                     extra = 3-i
                 else:
                     extra = 0
                 if sailor.name not in results:
-                    results[sailor.name] = 50-i+extra
+                    results[sailor.name] = [Competition(n+1, 50-i, extra)]
                 else:
-                    results[sailor.name] += 50-i+extra
-        return results
+                    results[sailor.name].append(Competition(n+1, 50-i, extra))
+        return self.sort_year(results)
 
     def get_results_finals(self):
         results = {}
-        for regatta in self.regattas:
-            for i, sailor in enumerate(regatta.get_results_normal_finals()):
-                for j, man in enumerate(regatta.get_results_normal()):
-                    if sailor.name == man.name:
-                        if j < 3:
-                            extra = 3 - i
-                        else:
-                            extra = 0
-                        break
-                if sailor.name not in results:
-                    results[sailor.name] = 50 - i + extra
-                else:
-                    results[sailor.name] += 50 - i + extra
-        return results
+        analyzer = Analyzer()
+        for n, regatta in enumerate(self.regattas):
+            newregatta = Regatta(regatta)
+            analyzer.load_results(regatta)
+            if analyzer.is_finals():
+                for i, sailor in enumerate(newregatta.get_results_normal_finals()):
+                    for j, man in enumerate(newregatta.get_results_normal()):
+                        if sailor.name == man.name:
+                            if j < 3:
+                                extra = 3 - i
+                            else:
+                                extra = 0
+                            break
+                    if sailor.name not in results:
+                        results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                    else:
+                        results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+            else:
+                for i, sailor in enumerate(newregatta.get_results_normal()):
+                    if i < 3:
+                        extra = 3 - i
+                    else:
+                        extra = 0
+                    if sailor.name not in results:
+                        results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                    else:
+                        results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+        return self.sort_year(results)
 
     def get_results_old1(self):
         results = {}
-        for regatta in self.regattas:
-            for i, sailor in enumerate(regatta.get_results_2()):
-                for j, man in enumerate(regatta.get_results_normal()):
-                    if sailor.name == man.name:
-                        if j < 3:
-                            extra = 3 - i
-                        else:
-                            extra = 0
-                        break
-                if sailor.name not in results:
-                    results[sailor.name] = 50 - i + extra
-                else:
-                    results[sailor.name] += 50 - i + extra
-        return results
+        analyzer = Analyzer()
+        for n, regatta in enumerate(self.regattas):
+            newregatta = Regatta(regatta)
+            analyzer.load_results(regatta)
+            if analyzer.is_finals():
+                for i, sailor in enumerate(newregatta.get_results_2()):
+                    for j, man in enumerate(newregatta.get_results_normal()):
+                        if sailor.name == man.name:
+                            if j < 3:
+                                extra = 3 - i
+                            else:
+                                extra = 0
+                            break
+                    if sailor.name not in results:
+                        results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                    else:
+                        results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+            else:
+                for i, sailor in enumerate(newregatta.get_results_normal()):
+                    if i < 3:
+                        extra = 3 - i
+                    else:
+                        extra = 0
+                    if sailor.name not in results:
+                        results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                    else:
+                        results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+
+        return self.sort_year(results)
 
     def get_results_old2(self):
         results = {}
-        for regatta in self.regattas:
-            for i, sailor in enumerate(regatta.get_results_3()):
-                for j, man in enumerate(regatta.get_results_normal()):
-                    if sailor.name == man.name:
-                        if j < 3:
-                            extra = 3 - i
-                        else:
-                            extra = 0
-                        break
-                if sailor.name not in results:
-                    results[sailor.name] = 50 - i + extra
-                else:
-                    results[sailor.name] += 50 - i + extra
-        return results
+        analyzer = Analyzer()
+        for n, regatta in enumerate(self.regattas):
+            newregatta = Regatta(regatta)
+            analyzer.load_results(regatta)
+            if analyzer.is_finals():
+                for i, sailor in enumerate(newregatta.get_results_3()):
+                    for j, man in enumerate(newregatta.get_results_normal()):
+                        if sailor.name == man.name:
+                            if j < 3:
+                                extra = 3 - i
+                            else:
+                                extra = 0
+                            break
+                    if sailor.name not in results:
+                        results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                    else:
+                        results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+            else:
+                for i, sailor in enumerate(newregatta.get_results_normal()):
+                    if i < 3:
+                        extra = 3 - i
+                    else:
+                        extra = 0
+                    if sailor.name not in results:
+                        results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                    else:
+                        results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+        return self.sort_year(results)
 
     def get_results_old3(self):
         results = {}
-        for regatta in self.regattas:
-            for i, sailor in enumerate(regatta.get_results_4()):
-                for j, man in enumerate(regatta.get_results_normal()):
-                    if sailor.name == man.name:
-                        if j < 3:
-                            extra = 3 - i
-                        else:
-                            extra = 0
-                        break
-                if sailor.name not in results:
-                    results[sailor.name] = 50 - i + extra
-                else:
-                    results[sailor.name] += 50 - i + extra
-        return results
+        analyzer = Analyzer()
+        for n, regatta in enumerate(self.regattas):
+            newregatta = Regatta(regatta)
+            analyzer.load_results(regatta)
+            if analyzer.is_finals():
+                for i, sailor in enumerate(newregatta.get_results_4()):
+                    for j, man in enumerate(newregatta.get_results_normal()):
+                        if sailor.name == man.name:
+                            if j < 3:
+                                extra = 3 - i
+                            else:
+                                extra = 0
+                            break
+                    if sailor.name not in results:
+                        results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                    else:
+                        results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+            else:
+                for i, sailor in enumerate(newregatta.get_results_normal()):
+                    if i < 3:
+                        extra = 3 - i
+                    else:
+                        extra = 0
+                    if sailor.name not in results:
+                        results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                    else:
+                        results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+        return self.sort_year(results)
 
     def get_results_new1(self):
         results = {}
-        for regatta in self.regattas:
-            for i, sailor in enumerate(regatta.get_results_newfinals_1()):
-                for j, man in enumerate(regatta.get_results_normal()):
+        for n, regatta in enumerate(self.regattas):
+            newregatta = Regatta(regatta)
+            for i, sailor in enumerate(newregatta.get_results_newfinals_1()):
+                for j, man in enumerate(newregatta.get_results_normal()):
                     if sailor.name == man.name:
                         if j < 3:
                             extra = 3 - i
@@ -250,16 +323,17 @@ class Season:
                             extra = 0
                         break
                 if sailor.name not in results:
-                    results[sailor.name] = 50 - i + extra
+                    results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
                 else:
-                    results[sailor.name] += 50 - i + extra
-        return results
+                    results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+        return self.sort_year(results)
 
     def get_results_new2(self):
         results = {}
-        for regatta in self.regattas:
-            for i, sailor in enumerate(regatta.get_results_newfinals_2()):
-                for j, man in enumerate(regatta.get_results_normal()):
+        for n, regatta in enumerate(self.regattas):
+            newregatta = Regatta(regatta)
+            for i, sailor in enumerate(newregatta.get_results_newfinals_2()):
+                for j, man in enumerate(newregatta.get_results_normal()):
                     if sailor.name == man.name:
                         if j < 3:
                             extra = 3 - i
@@ -267,16 +341,17 @@ class Season:
                             extra = 0
                         break
                 if sailor.name not in results:
-                    results[sailor.name] = 50 - i + extra
+                    results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
                 else:
-                    results[sailor.name] += 50 - i + extra
-        return results
+                    results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+        return self.sort_year(results)
 
     def get_results_new3(self):
         results = {}
-        for regatta in self.regattas:
-            for i, sailor in enumerate(regatta.get_results_newfinals_3()):
-                for j, man in enumerate(regatta.get_results_normal()):
+        for n, regatta in enumerate(self.regattas):
+            newregatta = Regatta(regatta)
+            for i, sailor in enumerate(newregatta.get_results_newfinals_3()):
+                for j, man in enumerate(newregatta.get_results_normal()):
                     if sailor.name == man.name:
                         if j < 3:
                             extra = 3 - i
@@ -284,16 +359,17 @@ class Season:
                             extra = 0
                         break
                 if sailor.name not in results:
-                    results[sailor.name] = 50 - i + extra
+                    results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
                 else:
-                    results[sailor.name] += 50 - i + extra
-        return results
+                    results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+        return self.sort_year(results)
 
     def get_results_new4(self):
         results = {}
-        for regatta in self.regattas:
-            for i, sailor in enumerate(regatta.get_results_oldfinals_1()):
-                for j, man in enumerate(regatta.get_results_normal()):
+        for n, regatta in enumerate(self.regattas):
+            newregatta = Regatta(regatta)
+            for i, sailor in enumerate(newregatta.get_results_oldfinals_1()):
+                for j, man in enumerate(newregatta.get_results_normal()):
                     if sailor.name == man.name:
                         if j < 3:
                             extra = 3 - i
@@ -301,16 +377,17 @@ class Season:
                             extra = 0
                         break
                 if sailor.name not in results:
-                    results[sailor.name] = 50 - i + extra
+                    results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
                 else:
-                    results[sailor.name] += 50 - i + extra
-        return results
+                    results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+        return self.sort_year(results)
 
     def get_results_new5(self):
         results = {}
-        for regatta in self.regattas:
-            for i, sailor in enumerate(regatta.get_results_oldfinals_2()):
-                for j, man in enumerate(regatta.get_results_normal()):
+        for n, regatta in enumerate(self.regattas):
+            newregatta = Regatta(regatta)
+            for i, sailor in enumerate(newregatta.get_results_oldfinals_2()):
+                for j, man in enumerate(newregatta.get_results_normal()):
                     if sailor.name == man.name:
                         if j < 3:
                             extra = 3 - i
@@ -318,16 +395,17 @@ class Season:
                             extra = 0
                         break
                 if sailor.name not in results:
-                    results[sailor.name] = 50 - i + extra
+                    results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
                 else:
-                    results[sailor.name] += 50 - i + extra
-        return results
+                    results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+        return self.sort_year(results)
 
     def get_results_new6(self):
         results = {}
-        for regatta in self.regattas:
-            for i, sailor in enumerate(regatta.get_results_oldfinals_3()):
-                for j, man in enumerate(regatta.get_results_normal()):
+        for n, regatta in enumerate(self.regattas):
+            newregatta = Regatta(regatta)
+            for i, sailor in enumerate(newregatta.get_results_oldfinals_3()):
+                for j, man in enumerate(newregatta.get_results_normal()):
                     if sailor.name == man.name:
                         if j < 3:
                             extra = 3 - i
@@ -335,7 +413,7 @@ class Season:
                             extra = 0
                         break
                 if sailor.name not in results:
-                    results[sailor.name] = 50 - i + extra
+                    results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
                 else:
-                    results[sailor.name] += 50 - i + extra
-        return results
+                    results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+        return self.sort_year(results)
