@@ -1,7 +1,6 @@
 """Examples."""
 from results_analyzer import Analyzer
-from year import Regatta
-from  year import Season
+from season import Regatta, Season
 from numpy import array
 import numpy as np
 from scipy.stats import spearmanr
