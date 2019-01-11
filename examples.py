@@ -7,17 +7,24 @@ from scipy.stats import spearmanr
 from scipy.stats import kendalltau
 
 
-def get_line(i, name, club, races, total, nett, seperator, silver=None, gold=None, change=None, show_finals=False,
-             show_change=False):
-    always = "{0:3d}" + seperator + "{1:<25s}" + seperator + "{2:<10s}" + seperator + "{3:>}"
-    total_net = seperator + "{4:6}" + seperator + "{5:5}"
-    fin = seperator + "{6:>8s}" + seperator + "{7:>4s}"
-    chan = seperator + "{8:>7d}"
-    line = always.format(i, name, club, races)
-    line += fin.format(silver, gold) if show_finals else ''
+def get_line(i, name, club, races, total, nett, separator: str, silver=None, gold=None, change=None, show_finals=False,
+             display_stats=False):
+    """Get line."""
+    always = "{0:3d}" + separator + "{1:<25s}" + separator + "{2:<10s}" + separator + "{3:>}"
+    total_net = separator + "{4:6}" + separator + "{5:5}"
+    finals = separator + "{6:>8s}" + separator + "{7:>4s}"
+    stats = separator + "{8:>7d}"
+    line = always.format(i, name, club, separator.join([format(str(x), '>3') for x in races]))
+    line += finals.format(silver, gold) if show_finals else ''
     line += total_net.format(total, nett)
-    line += chan.format(change) if show_change else ''
-    return line + '\n'
+    line += stats.format(change) if display_stats else ''
+    return line
+
+
+def get_line_syntax(races_count, separator, show_finals=False, display_stats=False):
+    """Get syntax for line."""
+    return get_line("Pos", "Name", "Club", separator.join([format("R" + str(x + 1), '>3') for x in range(races_count)]),
+                    "Total", "Nett", separator, "Gold", "Silver", show_finals, display_stats)
 
 
 def write_file(f, original, analyzed, key: str = "same"):
