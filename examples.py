@@ -10,9 +10,9 @@ from scipy.stats import kendalltau
 def get_line(i, name, club, races, total, nett, separator: str, silver=None, gold=None, change=None, show_finals=False,
              display_stats=False):
     """Get line."""
-    always = "{0:3d}" + separator + "{1:<25s}" + separator + "{2:<10s}" + separator + "{3:>}"
-    total_net = separator + "{4:6}" + separator + "{5:5}"
-    finals = separator + "{6:>8s}" + separator + "{7:>4s}"
+    always = separator.join(["{0:3d}", "{1:<25s}", "{2:<10s}", "{3:>}"])
+    total_net = separator.join(["{4:6}", "{5:5}"])
+    finals = separator.join(["{6:>8s}", "{7:>4s}"])
     stats = separator + "{8:>7d}"
     line = always.format(i, name, club, separator.join([format(str(x), '>3') for x in races]))
     line += finals.format(silver, gold) if show_finals else ''
@@ -115,7 +115,7 @@ def create_array(list1, list2):
                 y.append(j+1)
         if i == 9:
             break
-    return(x,y)
+    return x, y
 
 
 def create_array_season(list1, list2):
@@ -128,7 +128,7 @@ def create_array_season(list1, list2):
                 y.append(j+1)
         if i == 19:
             break
-    return(x,y)
+    return x, y
 
 
 def add_row(files, row):
