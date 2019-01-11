@@ -80,13 +80,14 @@ class Sailor:
 
     def get_points_after(self, races: int, discount: int = 0, calc_extras: bool = False):
         """Get points after x races."""
-        points_to_discount = sum(sorted([x.points for x in self.races[:races] if x.symbol != 'DNE'], reverse=True)[:discount])
+        discounts = sum(sorted([x.points for x in self.races[:races] if x.symbol != 'DNE'], reverse=True)[:discount])
         if calc_extras:
-            extra = sum([(i + 1)**-1 * x.points * 10**-3 for i, x in enumerate(sorted(self.races, key=lambda x: x.points))])
+            extra = sum([(i + 1)**-1 * x.points * 10**-3 for i, x in
+                         enumerate(sorted(self.races, key=lambda x: x.points))])
             extra += sum([(i + 1)**7 * x.points * 10**-15 for i, x in enumerate(self.races)])
         else:
             extra = 0
-        return sum([x.points for x in self.races[:races]]) + extra - points_to_discount
+        return sum([x.points for x in self.races[:races]]) + extra - discounts
 
     def copy(self):
         """Copy."""
@@ -103,8 +104,8 @@ class Sailor:
 
     def __repr__(self):
         """Repr."""
-        return f"Name: {self.name}, club: {self.club}, sail nr: {self.sail_nr}, races: {self.races}, silver: {self.silver}, gold: {self.gold} " + \
-            f"points: {self.total_points}"
+        return f"Name: {self.name}, club: {self.club}, sail nr: {self.sail_nr}, races: {self.races}, " + \
+               f"silver: {self.silver}, gold: {self.gold} points: {self.total_points}"
 
 
 class Analyzer:
@@ -235,7 +236,8 @@ class Analyzer:
         results[4:10] = sorted(results[4:10], key=lambda x: x.get_points_after(races, discount)+x.silver.points)
         for j in range(len(results[4:10])-1):
             for i in range(len(results[4:10])-1):
-                if results[i+4].get_points_after(races, discount)+results[i+4].silver.points == results[i+5].get_points_after(races, discount)+results[i+5].silver.points:
+                if results[i+4].get_points_after(races, discount)+results[i+4].silver.points == \
+                        results[i+5].get_points_after(races, discount)+results[i+5].silver.points:
                     if results[i+4].get_points_after(races, discount) > results[i+5].get_points_after(races, discount):
                         results[i+4], results[i+5] = results[i+5], results[i+4]
 
