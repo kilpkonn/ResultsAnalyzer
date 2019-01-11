@@ -7,7 +7,9 @@ import numpy as np
 from scipy.stats import spearmanr
 from scipy.stats import kendalltau
 
-def line(i, name, club, races, total, nett, seperator, silver=None, gold=None, change=None, key: str = "sama", original: bool=False):
+
+def line(i, name, club, races, total, nett, seperator, silver=None, gold=None, change=None, key: str = "sama",
+         original: bool=False):
     always = "{0:3d}"+seperator+"{1:<25s}"+seperator+"{2:<10s}"+seperator+"{3:>}"+seperator+"{4:6}"+seperator+"{5:5}"
     fin = "{6:>8s}"+seperator+"{7:>4s}"
     chan = "{8:>7d}"
@@ -59,46 +61,57 @@ def write_file(f, original, analyzed, key: str = "same"):
         nett_new = int(analyzed[i].get_points_after(races=len(analyzed[i].races), discount=1))
         races_new = '\t'.join([format(str(x), '>3') for x in analyzed[i].races])
         races_syntax_new = '\t'.join([format("R" + str(x + 1), '>3') for x in range(len(analyzed[i].races))])
-        name = line.name
-        club = line.club
         for b in original:
             if analyzed[i].name == b.name:
                 orig = original.index(b)
         change = orig - i
         if key == "new":
             if i == 0:
-                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}\t{6:>6s}\t{7:>4s}".format("Pos", "Name", "Club", races_syntax, "Total", "Nett", "Silver", "Gold"))
+                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}\t{6:>6s}\t{7:>4s}".format(
+                    "Pos", "Name", "Club", races_syntax, "Total", "Nett", "Silver", "Gold"))
                 f.write("\t"+"|"+"\t")
-                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}\t{6:>7s}".format("Pos", "Name", "Club", races_syntax_new, "Total", "Nett", "Change"))
+                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}\t{6:>7s}".format(
+                    "Pos", "Name", "Club", races_syntax_new, "Total", "Nett", "Change"))
                 f.write("\n")
-            #f.write(line(i + 1, name, club, races, total, nett, "\t", silver, gold, key="uus", original=True))
-            #f.write(line(i + 1, analyzed[i].name, analyzed[i].club, races_new, total_new, nett_new, change, "\t", silver, gold, key="uus"))
-            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>6s}\t{7:>4s}".format(i + 1, line.name, line.club, races, total, nett, silver, gold))
+            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>6s}\t{7:>4s}".format(
+                i + 1, line.name, line.club, races, total, nett, silver, gold))
             f.write("\t" + "|" + "\t")
-            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>7d}".format(i + 1, analyzed[i].name, analyzed[i].club, races_new, total_new, nett_new, change))
+            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>7d}".format(
+                i + 1, analyzed[i].name, analyzed[i].club, races_new, total_new, nett_new, change))
             f.write("\n")
         if key == "old":
             if i == 0:
-                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}".format("Pos", "Name", "Club", races_syntax, "Total", "Nett"))
+                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}".format(
+                    "Pos", "Name", "Club", races_syntax, "Total", "Nett"))
                 f.write("\t"+"|"+"\t")
-                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}\t{6:>6s}\t{7:>4s}\t{8:>7s}".format("Pos", "Name", "Club", races_syntax_new, "Total", "Nett", "Silver", "Gold", "Change"))
+                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}\t{6:>6s}\t{7:>4s}\t{8:>7s}".format(
+                    "Pos", "Name", "Club", races_syntax_new, "Total", "Nett", "Silver", "Gold", "Change"))
                 f.write("\n")
-            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}".format(i + 1, line.name, line.club, races, total, nett))
+            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}".format(
+                i + 1, line.name, line.club, races, total, nett))
             f.write("\t" + "|" + "\t")
-            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>6s}\t{7:>4s}\t{8:>7d}".format(i + 1, analyzed[i].name, analyzed[i].club, races_new, total_new, nett_new, silver_new, gold_new, change))
+            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>6s}\t{7:>4s}\t{8:>7d}".format(
+                i + 1, analyzed[i].name, analyzed[i].club, races_new, total_new, nett_new, silver_new, gold_new,
+                change))
             f.write("\n")
         if key == "same":
             if i == 0:
-                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}\t{6:>6s}\t{7:>4s}".format("Pos", "Name", "Club", races_syntax, "Total", "Nett", "Silver", "Gold"))
+                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}\t{6:>6s}\t{7:>4s}".format(
+                    "Pos", "Name", "Club", races_syntax, "Total", "Nett", "Silver", "Gold"))
                 f.write("\t"+"|"+"\t")
-                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}\t{6:>6s}\t{7:>4s}\t{8:>7s}".format("Pos", "Name", "Club", races_syntax_new, "Total", "Nett", "Silver", "Gold", "Change"))
+                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}\t{6:>6s}\t{7:>4s}\t{8:>7s}".format(
+                    "Pos", "Name", "Club", races_syntax_new, "Total", "Nett", "Silver", "Gold", "Change"))
                 f.write("\n")
-            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>6s}\t{7:>4s}".format(i + 1, line.name, line.club, races, total, nett, silver, gold))
+            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>6s}\t{7:>4s}".format(
+                i + 1, line.name, line.club, races, total, nett, silver, gold))
             f.write("\t" + "|" + "\t")
-            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>6s}\t{7:>4s}\t{8:>7d}".format(i + 1, analyzed[i].name, analyzed[i].club, races_new, total_new, nett_new, silver_new, gold_new, change))
+            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>6s}\t{7:>4s}\t{8:>7d}".format(
+                i + 1, analyzed[i].name, analyzed[i].club, races_new, total_new, nett_new, silver_new, gold_new,
+                change))
             f.write("\n")
     f.write("-"*303)
     f.write("\n")
+
 
 def create_array(list1, list2):
     x = []
@@ -112,6 +125,7 @@ def create_array(list1, list2):
             break
     return(x,y)
 
+
 def create_array_season(list1, list2):
     x = []
     y = []
@@ -123,6 +137,7 @@ def create_array_season(list1, list2):
         if i == 19:
             break
     return(x,y)
+
 
 def add_row(files, row):
     cup = ""
@@ -141,6 +156,7 @@ def add_row(files, row):
             cup = cup + "\t" + format("", " >3") + "\t" + format("", " >1")
     return cup
 
+
 def write_year(f, original, converted, files):
     for i, row in enumerate(original):
         for k in original:
@@ -158,7 +174,8 @@ def write_year(f, original, converted, files):
         cup1 = add_row(files, converted[i])
         f.write("{0:>3d}\t{1:<25s}\t{2:>30s}\t{3:>6}".format(i+1, row[0], cup, row[1][len(row[1])-2]))
         f.write("\t"+"|"+"\t")
-        f.write("{0:>3d}\t{1:<25s}\t{2:>30s}\t{3:>6}\t{4:>7}".format(i+1, converted[i][0], cup1, converted[i][1][len(row[1])-2], change))
+        f.write("{0:>3d}\t{1:<25s}\t{2:>30s}\t{3:>6}\t{4:>7}".format(i+1, converted[i][0], cup1,
+                                                                     converted[i][1][len(row[1])-2], change))
         f.write("\n")
     f.write("-" * 303)
     f.write("\n")
