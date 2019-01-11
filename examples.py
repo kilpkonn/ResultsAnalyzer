@@ -7,31 +7,17 @@ from scipy.stats import spearmanr
 from scipy.stats import kendalltau
 
 
-def line(i, name, club, races, total, nett, seperator, silver=None, gold=None, change=None, key: str = "sama",
-         original: bool=False):
-    always = "{0:3d}"+seperator+"{1:<25s}"+seperator+"{2:<10s}"+seperator+"{3:>}"+seperator+"{4:6}"+seperator+"{5:5}"
-    fin = "{6:>8s}"+seperator+"{7:>4s}"
-    chan = "{8:>7d}"
-    b = seperator+"|"+seperator
-    if original and key == "uus":
-        a = always+fin+b
-        write = a.format(i, name, club, races, total, nett, silver, gold)
-    elif key == "uus" and not original:
-        a = always+chan+"\n"
-        write = a.format(i, name, club, races, total, nett, change)
-    elif original and key == "vana":
-        a = always+b
-        write = a.format(i, name, club, races, total, nett)
-    elif key == "vana" and not original:
-        a = always+fin+chan+"\n"
-        write = a.format(i, name, club, races, total, nett, silver, gold, change)
-    elif key == "sama" and original:
-        a = always+fin+b
-        write = a.format(i, name, club, races, total, nett, silver, gold)
-    elif key == "sama" and not original:
-        a = always+fin+chan+"\n"
-        write = a.format(i, name, club, races, total, nett, silver, gold, change)
-    return write
+def get_line(i, name, club, races, total, nett, seperator, silver=None, gold=None, change=None, show_finals=False,
+             show_change=False):
+    always = "{0:3d}" + seperator + "{1:<25s}" + seperator + "{2:<10s}" + seperator + "{3:>}"
+    total_net = seperator + "{4:6}" + seperator + "{5:5}"
+    fin = seperator + "{6:>8s}" + seperator + "{7:>4s}"
+    chan = seperator + "{8:>7d}"
+    line = always.format(i, name, club, races)
+    line += fin.format(silver, gold) if show_finals else ''
+    line += total_net.format(total, nett)
+    line += chan.format(change) if show_change else ''
+    return line + '\n'
 
 
 def write_file(f, original, analyzed, key: str = "same"):
