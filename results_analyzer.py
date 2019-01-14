@@ -257,10 +257,7 @@ class Analyzer:
         return Place(pos, sym)
 
     def is_finals(self):
-        if self.get_competitors()[0].gold:
-            return True
-        else:
-            return False
+        return any([x.silver for x in self.get_competitors()])
 
     def get_real_places(self, list_1):
         results = list_1

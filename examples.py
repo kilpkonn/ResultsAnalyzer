@@ -3,139 +3,82 @@ from results_analyzer import Analyzer
 from season import Regatta, Season
 from numpy import array
 import numpy as np
-from scipy.stats import spearmanr
 from scipy.stats import pearsonr
 
 
-def get_line(i, name, club, races, total, nett, separator: str, silver=None, gold=None, change=None, show_finals=False,
+def get_line(i, name, club, races, total, nett, separator = str, silver=None, gold=None, change=None, show_finals=False,
              display_stats=False):
     """Get line."""
-    always = separator.join(["{0:3d}", "{1:<25s}", "{2:<10s}", "{3:>}"])
-    total_net = separator.join(["{4:6}", "{5:5}"])
-    finals = separator.join(["{6:>8s}", "{7:>4s}"])
-    stats = separator + "{8:>7d}"
+    always = separator.join(["{0:3}", "{1:<25}", "{2:<10}", "{3:>}"])
+    total_net = separator.join(["", "{0:>6}", "{1:>5}"])
+    finals = separator.join(["{0:>8}", "{1:>4}"])
+    stats = separator + "{0:>7}"
     line = always.format(i, name, club, separator.join([format(str(x), '>3') for x in races]))
-    line += finals.format(silver, gold) if show_finals else ''
+    line += finals.format(str(silver), str(gold)) if show_finals else ''
     line += total_net.format(total, nett)
     line += stats.format(change) if display_stats else ''
-    return line
+    return line.replace("None", ' ' * 4)
 
 
 def get_line_syntax(races_count, separator, show_finals=False, display_stats=False):
     """Get syntax for line."""
-    return get_line("Pos", "Name", "Club", separator.join([format("R" + str(x + 1), '>3') for x in range(races_count)]),
-                    "Total", "Nett", separator, "Gold", "Silver", show_finals, display_stats)
+    return get_line("Pos", "Name", "Club", [format("R" + str(x + 1), '>3') for x in range(races_count)],
+                    "Total", "Nett", separator, "Silver", "Gold", "Change", show_finals, display_stats)
 
 
-def write_file(f, original, analyzed, key: str = "same"):
+def write_file(f, original, analyzed, original_has_finals):
     changes = []
     correl = []
     chan = 0
+    f.write(get_line_syntax(len(original[0].races), "\t", original_has_finals, False))
+    f.write("\t | \t")
+    f.write(get_line_syntax(len(analyzed[0].races), "\t", not original_has_finals, True))
+    f.write("\n")
     for i, sailor in enumerate(original):
-        if not sailor.silver:
-            silver = ""
-        if sailor.silver:
-            silver = str(sailor.silver)
-        if not sailor.gold:
-            gold = ""
-        if sailor.gold:
-            gold = str(sailor.gold)
-        total = int(sailor.get_points_after(races=len(sailor.races)))
-        nett = int(sailor.get_points_after(races=len(sailor.races), discount=1))
-        races = '\t'.join([format(str(x), '>3') for x in sailor.races])
-        races_syntax = '\t'.join([format("R" + str(x + 1), '>3') for x in range(len(sailor.races))])
-        if not analyzed[i].silver:
-            silver_new = ""
-        if analyzed[i].silver:
-            silver_new = str(analyzed[i].silver)
-        if not analyzed[i].gold:
-            gold_new = ""
-        if analyzed[i].gold:
-            gold_new = str(analyzed[i].gold)
-        total_new = int(analyzed[i].get_points_after(races=len(analyzed[i].races)))
-        nett_new = int(analyzed[i].get_points_after(races=len(analyzed[i].races), discount=1))
-        races_new = '\t'.join([format(str(x), '>3') for x in analyzed[i].races])
-        races_syntax_new = '\t'.join([format("R" + str(x + 1), '>3') for x in range(len(analyzed[i].races))])
         for b in original:
             if analyzed[i].name == b.name:
                 orig = original.index(b)
         change = orig - i
         chan = chan + abs(change)
+        f.write(get_line(i + 1, sailor.name, sailor.club, sailor.races, sailor.get_points_after(races = len(sailor.races)),
+                         sailor.get_points_after(races = len(sailor.races), discount=1), "\t", sailor.silver, sailor.gold, change, original_has_finals, False))
+        f.write("\t | \t")
+        f.write(get_line(i + 1, analyzed[i].name, analyzed[i].club, analyzed[i].races, analyzed[i].get_points_after(races = len(analyzed[i].races)),
+                         analyzed[i].get_points_after(races = len(analyzed[i].races), discount=1), "\t", analyzed[i].silver, analyzed[i].gold, change, not original_has_finals, True))
+        f.write("\n")
         if i == 2:
             changes.append(round(chan/(i+1), 2))
             x1, y1 = create_array(original, analyzed, i+1)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
-        if i == 4:
+        elif i == 4:
             changes.append(round(chan / (i + 1), 2))
             x1, y1 = create_array(original, analyzed, i + 1)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
-        if i == 9:
+        elif i == 9:
             changes.append(round(chan / (i + 1), 2))
             x1, y1 = create_array(original, analyzed, i + 1)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
-        if i == 14:
+        elif i == 14:
             changes.append(round(chan / (i + 1), 2))
             x1, y1 = create_array(original, analyzed, i + 1)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
-        if i == 19:
+        elif i == 19:
             changes.append(round(chan / (i + 1), 2))
             x1, y1 = create_array(original, analyzed, i + 1)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
 
-        if key == "new":
-            if i == 0:
-                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}\t{6:>6s}\t{7:>4s}".format(
-                    "Pos", "Name", "Club", races_syntax, "Total", "Nett", "Silver", "Gold"))
-                f.write("\t"+"|"+"\t")
-                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}\t{6:>7s}".format(
-                    "Pos", "Name", "Club", races_syntax_new, "Total", "Nett", "Change"))
-                f.write("\n")
-            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>6s}\t{7:>4s}".format(
-                i + 1, sailor.name, sailor.club, races, total, nett, silver, gold))
-            f.write("\t" + "|" + "\t")
-            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>7d}".format(
-                i + 1, analyzed[i].name, analyzed[i].club, races_new, total_new, nett_new, change))
-            f.write("\n")
-        if key == "old":
-            if i == 0:
-                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}".format(
-                    "Pos", "Name", "Club", races_syntax, "Total", "Nett"))
-                f.write("\t"+"|"+"\t")
-                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}\t{6:>6s}\t{7:>4s}\t{8:>7s}".format(
-                    "Pos", "Name", "Club", races_syntax_new, "Total", "Nett", "Silver", "Gold", "Change"))
-                f.write("\n")
-            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}".format(
-                i + 1, sailor.name, sailor.club, races, total, nett))
-            f.write("\t" + "|" + "\t")
-            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>6s}\t{7:>4s}\t{8:>7d}".format(
-                i + 1, analyzed[i].name, analyzed[i].club, races_new, total_new, nett_new, silver_new, gold_new,
-                change))
-            f.write("\n")
-        if key == "same":
-            if i == 0:
-                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}\t{6:>6s}\t{7:>4s}".format(
-                    "Pos", "Name", "Club", races_syntax, "Total", "Nett", "Silver", "Gold"))
-                f.write("\t"+"|"+"\t")
-                f.write("{0:>3s}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:>6s}\t{5:>5s}\t{6:>6s}\t{7:>4s}\t{8:>7s}".format(
-                    "Pos", "Name", "Club", races_syntax_new, "Total", "Nett", "Silver", "Gold", "Change"))
-                f.write("\n")
-            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>6s}\t{7:>4s}".format(
-                i + 1, sailor.name, sailor.club, races, total, nett, silver, gold))
-            f.write("\t" + "|" + "\t")
-            f.write("{0:3d}\t{1:<25s}\t{2:<10s}\t{3:>}\t{4:6}\t{5:5}\t{6:>6s}\t{7:>4s}\t{8:>7d}".format(
-                i + 1, analyzed[i].name, analyzed[i].club, races_new, total_new, nett_new, silver_new, gold_new,
-                change))
-            f.write("\n")
+
+
     f.write("-" * 303)
     f.write("\n")
     for k, one in enumerate(correl):
@@ -279,35 +222,35 @@ def write_change(f, change, top):
 if __name__ == "__main__":
     analyzer = Analyzer()
     year = "2014_"
-    files = ["./example_data.csv", "./example_data_2.csv"]
+    files = ["D:\\Docs\\Uurimistöö\\2014\\laser 4.7\\4.7_2014_1.csv", "D:\\Docs\\Uurimistöö\\2014\\laser 4.7\\4.7_2014_2.csv", "D:\\Docs\\Uurimistöö\\2014\\laser 4.7\\4.7_2014_3.csv"]
     for k, file in enumerate(files):
         regatta = Regatta(file)
         analyzer.load_results(file)
         if analyzer.is_finals():
 
 
-            filew = year+str(k+1)+".txt"
+            filew = "D:\\Docs\\Uurimistöö\\2014\\laser 4.7\\"+year+str(k+1)+".txt"
             f = open(filew, "w")
-            write_file(f, regatta.get_results_normal_finals(), regatta.get_results_normal(), key="new")
-            write_file(f, regatta.get_results_normal_finals(), regatta.get_results_2(), key="new")
-            write_file(f, regatta.get_results_normal_finals(), regatta.get_results_3(), key="new")
-            write_file(f, regatta.get_results_normal_finals(), regatta.get_results_4())
+            write_file(f, regatta.get_results_normal_finals(), regatta.get_results_normal(), True)
+            write_file(f, regatta.get_results_normal_finals(), regatta.get_results_2(), True)
+            write_file(f, regatta.get_results_normal_finals(), regatta.get_results_3(), True)
+            write_file(f, regatta.get_results_normal_finals(), regatta.get_results_4(), True)
             f.close()
         else:
-            filew = year + str(k + 1) + ".txt"
+            filew = "D:\\Docs\\Uurimistöö\\2014\\laser 4.7\\"+year + str(k + 1) + ".txt"
             f = open(filew, "w")
-            write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_1(), key="old")
-            write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_2(), key="old")
-            write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_3(), key="old")
-            write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(), key="old")
-            write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_2(), key="old")
-            write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_3(), key="old")
+            write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_1(), False)
+            write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_2(), False)
+            write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_3(), False)
+            write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(), False)
+            write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_2(), False)
+            write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_3(), False)
             f.close()
 
     season = Season(files)
     if int(year.replace("_", "")) > 2014:
 
-        filew = year + "conclusion" + ".txt"
+        filew = "D:\\Docs\\Uurimistöö\\2014\\laser 4.7\\"+year + "conclusion" + ".txt"
         f = open(filew, "w")
         write_year(f, season.get_results_finals(), season.get_results(), files)
         write_year(f, season.get_results_finals(), season.get_results_old1(), files)
@@ -316,7 +259,7 @@ if __name__ == "__main__":
         f.close()
     else:
 
-        filew = year + "conclusion" + ".txt"
+        filew = "D:\\Docs\\Uurimistöö\\2014\\laser 4.7\\"+year + "conclusion" + ".txt"
         f = open(filew, "w")
         write_year(f, season.get_results(), season.get_results_new1(), files)
         write_year(f, season.get_results(), season.get_results_new2(), files)
