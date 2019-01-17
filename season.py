@@ -189,11 +189,15 @@ class Season:
         """Sort year."""
         for i in dic:
             total = 0
-            for j in dic[i]:
+            if len(dic[i]) > 3:
+                discount_dic = sorted(dic[i], key=lambda x: x.total)[:len(dic[i])-1]
+            else:
+                discount_dic = dic[i]
+            for j in discount_dic:
                 total = total + j.total
             extra = sum([(i + 1) ** -1 * x.total * 10 ** -3 for i, x in
-                         enumerate(sorted(dic[i], key=lambda x: x.total))])
-            extra += sum([(i + 1) ** 7 * x.total * 10 ** -15 for i, x in enumerate(dic[i])])
+                         enumerate(sorted(discount_dic, key=lambda x: x.total))])
+            extra += sum([(i + 1) ** 7 * x.total * 10 ** -15 for i, x in enumerate(discount_dic)])
             dic[i].append(total)
             dic[i].append(extra)
         return sorted(dic.items(), key=lambda x: x[1][len(x[1]) - 1], reverse=True)

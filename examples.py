@@ -9,13 +9,13 @@ from scipy.stats import pearsonr
 def get_line(i, name, club, races, total, nett, separator = str, silver=None, gold=None, change=None, show_finals=False,
              display_stats=False):
     """Get line."""
-    always = separator.join(["{0:3}", "{1:<25}", "{2:<10}", "{3:>}"])
+    always = separator.join(["{0:>3}", "{1:<30}", "{2:<10}", "{3:>}"])
     total_net = separator.join(["", "{0:>6}", "{1:>5}"])
     finals = separator.join(["{0:>8}", "{1:>4}"])
     stats = separator + "{0:>7}"
     line = always.format(i, name, club, separator.join([format(str(x), '>3') for x in races]))
-    line += finals.format(str(silver), str(gold)) if show_finals else ''
     line += total_net.format(total, nett)
+    line += finals.format(str(silver), str(gold)) if show_finals else ''
     line += stats.format(change) if display_stats else ''
     return line.replace("None", ' ' * 4)
 
@@ -87,7 +87,7 @@ def write_file(f, original, analyzed, original_has_finals):
         else:
             s = k + 4*k
         write_correl(f, one[0], one[1], s)
-        f.write("\t")
+        f.write(format("\t", "4"))
         write_change(f, changes[k], s)
         f.write("\n")
     f.write("-"*303)
@@ -191,7 +191,7 @@ def write_year(f, original, converted, files):
         f.write("{0:>3d}\t{1:<25s}\t{2:>30s}\t{3:>6}".format(i+1, row[0], cup, row[1][len(row[1])-2]))
         f.write("\t"+"|"+"\t")
         f.write("{0:>3d}\t{1:<25s}\t{2:>30s}\t{3:>6}\t{4:>7}".format(i+1, converted[i][0], cup1,
-                                                                     converted[i][1][len(row[1])-2], change))
+                                                                     converted[i][1][len(converted[i][1])-2], change))
         f.write("\n")
     f.write("-" * 303)
     f.write("\n")
@@ -209,15 +209,14 @@ def write_year(f, original, converted, files):
 
 def write_correl(fi, x, y, top):
     correl = round(pearsonr(x, y)[0], 2)
-    li = "Correlation_"+str(top)+ " = "
-    fi.write(li)
-    fi.write(str(correl))
+    li = "Correlation (top"+str(top)+ ") = "
+    fi.write(format(li, "<22"))
+    fi.write(format(str(correl), "3"))
 
 def write_change(f, change, top):
-    li = "Medium_change_" + str(top) + " = "
-    f.write(li)
-    f.write(str(change))
-
+    li = "Medium change (top"+str(top)+ ") = "
+    f.write(format(li, "<24"))
+    f.write(format(str(change), "3"))
 
 if __name__ == "__main__":
     analyzer = Analyzer()
@@ -228,8 +227,7 @@ if __name__ == "__main__":
         analyzer.load_results(file)
         if analyzer.is_finals():
 
-
-            filew = "D:\\Docs\\Uurimistöö\\2014\\laser 4.7\\"+year+str(k+1)+".txt"
+            filew = ""+year+str(k+1)+".txt"
             f = open(filew, "w")
             write_file(f, regatta.get_results_normal_finals(), regatta.get_results_normal(), True)
             write_file(f, regatta.get_results_normal_finals(), regatta.get_results_2(), True)
@@ -237,7 +235,7 @@ if __name__ == "__main__":
             write_file(f, regatta.get_results_normal_finals(), regatta.get_results_4(), True)
             f.close()
         else:
-            filew = "D:\\Docs\\Uurimistöö\\2014\\laser 4.7\\"+year + str(k + 1) + ".txt"
+            filew = ""+year + str(k + 1) + ".txt"
             f = open(filew, "w")
             write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_1(), False)
             write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_2(), False)
@@ -250,7 +248,7 @@ if __name__ == "__main__":
     season = Season(files)
     if int(year.replace("_", "")) > 2014:
 
-        filew = "D:\\Docs\\Uurimistöö\\2014\\laser 4.7\\"+year + "conclusion" + ".txt"
+        filew = ""+year + "conclusion" + ".txt"
         f = open(filew, "w")
         write_year(f, season.get_results_finals(), season.get_results(), files)
         write_year(f, season.get_results_finals(), season.get_results_old1(), files)
@@ -259,7 +257,7 @@ if __name__ == "__main__":
         f.close()
     else:
 
-        filew = "D:\\Docs\\Uurimistöö\\2014\\laser 4.7\\"+year + "conclusion" + ".txt"
+        filew = ""+year + "conclusion" + ".txt"
         f = open(filew, "w")
         write_year(f, season.get_results(), season.get_results_new1(), files)
         write_year(f, season.get_results(), season.get_results_new2(), files)
