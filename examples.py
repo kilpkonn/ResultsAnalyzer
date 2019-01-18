@@ -218,6 +218,45 @@ def write_change(f, change, top):
     f.write(format(li, "<24"))
     f.write(format(str(change), "3"))
 
+def write_medium_correl(f, original, list1, list2, list3):
+    x = []
+    y = []
+    for i, sailor in enumerate(original):
+        x.append(i+1)
+        a = 0
+        b = 0
+        for j, man in enumerate(list1):
+            if sailor.name == man.name:
+                a += j + 1
+                b += 1
+            if sailor.name == list2[j].name:
+                a += j + 1
+                b += 1
+            if sailor.name == list3[j].name:
+                a += j + 1
+                b += 1
+            if b == 3:
+                break
+        y.append(a/3)
+        if i == 2:
+            line = "Correlation all (top3) =\t" + str(round(pearsonr(x, y)[0], 2))
+            f.write(line)
+            f.write("\n")
+        elif i == 4:
+            line = "Correlation all (top5) =\t" + str(round(pearsonr(x, y)[0], 2))
+            f.write(line)
+            f.write("\n")
+        elif i == 9:
+            line = "Correlation all (top10) =\t" + str(round(pearsonr(x, y)[0], 2))
+            f.write(line)
+            f.write("\n")
+        elif i == 14:
+            line = "Correlation all (top15) =\t" + str(round(pearsonr(x, y)[0], 2))
+            f.write(line)
+            f.write("\n")
+    f.write("-"*303)
+    f.write("\n")
+
 if __name__ == "__main__":
     analyzer = Analyzer()
     year = "2014_"
@@ -232,6 +271,8 @@ if __name__ == "__main__":
             write_file(f, regatta.get_results_normal_finals(), regatta.get_results_normal(), True)
             write_file(f, regatta.get_results_normal_finals(), regatta.get_results_2(), True)
             write_file(f, regatta.get_results_normal_finals(), regatta.get_results_3(), True)
+            write_medium_correl(f, regatta.get_results_normal_finals(), regatta.get_results_normal(),
+                                regatta.get_results_2(), regatta.get_results_3())
             write_file(f, regatta.get_results_normal_finals(), regatta.get_results_4(), True)
             f.close()
         else:
@@ -240,9 +281,13 @@ if __name__ == "__main__":
             write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_1(), False)
             write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_2(), False)
             write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_3(), False)
+            write_medium_correl(f, regatta.get_results_normal(), regatta.get_results_newfinals_1(),
+                                regatta.get_results_newfinals_2(), regatta.get_results_newfinals_3())
             write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(), False)
             write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_2(), False)
             write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_3(), False)
+            write_medium_correl(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(),
+                                regatta.get_results_oldfinals_2(), regatta.get_results_oldfinals_3())
             f.close()
 
     season = Season(files)

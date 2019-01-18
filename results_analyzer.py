@@ -225,7 +225,7 @@ class Analyzer:
         results[3:10] = sorted(results[3:10], key=lambda x: x.silver.points)
         results[3].silver = Place(0, "0")
         results[:4] = sorted(results[:4], key=lambda x: x.gold.points)
-        for i in self.data:
+        for i in results:
             i.fleet_races(races)
         results = self.get_real_places(results)
         return results
