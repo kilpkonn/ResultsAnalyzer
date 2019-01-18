@@ -1,6 +1,7 @@
 """Examples."""
 from results_analyzer import Analyzer
 from season import Regatta, Season
+import os
 from numpy import array
 import numpy as np
 from scipy.stats import pearsonr
@@ -209,14 +210,14 @@ def write_year(f, original, converted, files):
 
 def write_correl(fi, x, y, top):
     correl = round(pearsonr(x, y)[0], 2)
-    li = "Correlation (top"+str(top)+ ") = "
+    li = "Correlation (top"+str(top)+ ") = \t"
     fi.write(format(li, "<22"))
-    fi.write(format(str(correl), "3"))
+    fi.write(format(str(correl), ">4"))
 
 def write_change(f, change, top):
-    li = "Medium change (top"+str(top)+ ") = "
+    li = "Medium change (top"+str(top)+ ") = \t"
     f.write(format(li, "<24"))
-    f.write(format(str(change), "3"))
+    f.write(format(str(change), ">4"))
 
 def write_medium_correl(f, original, list1, list2, list3):
     x = []
@@ -257,58 +258,106 @@ def write_medium_correl(f, original, list1, list2, list3):
     f.write("-"*303)
     f.write("\n")
 
+def write_medium_correl_year(f, original, list1, list2, list3):
+    x = []
+    y = []
+    for i, sailor in enumerate(original):
+        x.append(i+1)
+        a = 0
+        b = 0
+        for j, man in enumerate(list1):
+            if sailor[0] == man[0]:
+                a += j + 1
+                b += 1
+            if sailor[0] == list2[j][0]:
+                a += j + 1
+                b += 1
+            if sailor[0] == list3[j][0]:
+                a += j + 1
+                b += 1
+            if b == 3:
+                break
+        y.append(a/3)
+        if i == 2:
+            line = "Correlation all (top3) =\t" + str(round(pearsonr(x, y)[0], 2))
+            f.write(line)
+            f.write("\n")
+        elif i == 4:
+            line = "Correlation all (top5) =\t" + str(round(pearsonr(x, y)[0], 2))
+            f.write(line)
+            f.write("\n")
+        elif i == 9:
+            line = "Correlation all (top10) =\t" + str(round(pearsonr(x, y)[0], 2))
+            f.write(line)
+            f.write("\n")
+        elif i == 14:
+            line = "Correlation all (top15) =\t" + str(round(pearsonr(x, y)[0], 2))
+            f.write(line)
+            f.write("\n")
+    f.write("-"*303)
+    f.write("\n")
+
 if __name__ == "__main__":
     analyzer = Analyzer()
-    year = "2014_"
-    files = ["D:\\Docs\\Uurimistöö\\2014\\laser 4.7\\4.7_2014_1.csv", "D:\\Docs\\Uurimistöö\\2014\\laser 4.7\\4.7_2014_2.csv", "D:\\Docs\\Uurimistöö\\2014\\laser 4.7\\4.7_2014_3.csv"]
-    for k, file in enumerate(files):
-        regatta = Regatta(file)
-        analyzer.load_results(file)
-        if analyzer.is_finals():
+    year_folders = [f.path for f in os.scandir("D:\\Docs\\Uurimistöö\\") if f.is_dir()]
+    for folder in year_folders:
+        class_folders = [f.path for f in os.scandir(folder) if f.is_dir()]
+        for boat in class_folders:
+            k = 0
+            for csvfile in os.listdir(boat):
+                if csvfile.endswith(".csv"):
+                    k += 1
+                    file = os.path.join(boat, csvfile)
+                    regatta = Regatta(file)
+                    analyzer.load_results(file)
+                    if analyzer.is_finals():
 
-            filew = ""+year+str(k+1)+".txt"
-            f = open(filew, "w")
-            write_file(f, regatta.get_results_normal_finals(), regatta.get_results_normal(), True)
-            write_file(f, regatta.get_results_normal_finals(), regatta.get_results_2(), True)
-            write_file(f, regatta.get_results_normal_finals(), regatta.get_results_3(), True)
-            write_medium_correl(f, regatta.get_results_normal_finals(), regatta.get_results_normal(),
-                                regatta.get_results_2(), regatta.get_results_3())
-            write_file(f, regatta.get_results_normal_finals(), regatta.get_results_4(), True)
-            f.close()
-        else:
-            filew = ""+year + str(k + 1) + ".txt"
-            f = open(filew, "w")
-            write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_1(), False)
-            write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_2(), False)
-            write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_3(), False)
-            write_medium_correl(f, regatta.get_results_normal(), regatta.get_results_newfinals_1(),
-                                regatta.get_results_newfinals_2(), regatta.get_results_newfinals_3())
-            write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(), False)
-            write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_2(), False)
-            write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_3(), False)
-            write_medium_correl(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(),
-                                regatta.get_results_oldfinals_2(), regatta.get_results_oldfinals_3())
-            f.close()
+                        filew = boat+ "/" +str(k)+".txt"
+                        f = open(filew, "w")
+                        write_file(f, regatta.get_results_normal_finals(), regatta.get_results_normal(), True)
+                        write_file(f, regatta.get_results_normal_finals(), regatta.get_results_2(), True)
+                        write_file(f, regatta.get_results_normal_finals(), regatta.get_results_3(), True)
+                        write_medium_correl(f, regatta.get_results_normal_finals(), regatta.get_results_normal(),
+                                            regatta.get_results_2(), regatta.get_results_3())
+                        write_file(f, regatta.get_results_normal_finals(), regatta.get_results_4(), True)
+                        f.close()
+                    else:
+                        filew = boat+ "/" +str(k) + ".txt"
+                        f = open(filew, "w")
+                        write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_1(), False)
+                        write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_2(), False)
+                        write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_3(), False)
+                        write_medium_correl(f, regatta.get_results_normal(), regatta.get_results_newfinals_1(),
+                                            regatta.get_results_newfinals_2(), regatta.get_results_newfinals_3())
+                        write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(), False)
+                        write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_2(), False)
+                        write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_3(), False)
+                        write_medium_correl(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(),
+                                            regatta.get_results_oldfinals_2(), regatta.get_results_oldfinals_3())
+                        f.close()
 
-    season = Season(files)
-    if int(year.replace("_", "")) > 2014:
+            season = Season(files)
+            if int(year.replace("_", "")) > 2014:
 
-        filew = ""+year + "conclusion" + ".txt"
-        f = open(filew, "w")
-        write_year(f, season.get_results_finals(), season.get_results(), files)
-        write_year(f, season.get_results_finals(), season.get_results_old1(), files)
-        write_year(f, season.get_results_finals(), season.get_results_old2(), files)
-        write_year(f, season.get_results_finals(), season.get_results_old3(), files)
-        f.close()
-    else:
+                filew = boat+ "/conclusion" + ".txt"
+                f = open(filew, "w")
+                write_year(f, season.get_results_finals(), season.get_results(), files)
+                write_year(f, season.get_results_finals(), season.get_results_old1(), files)
+                write_year(f, season.get_results_finals(), season.get_results_old2(), files)
+                write_year(f, season.get_results_finals(), season.get_results_old3(), files)
+                f.close()
+            else:
 
-        filew = ""+year + "conclusion" + ".txt"
-        f = open(filew, "w")
-        write_year(f, season.get_results(), season.get_results_new1(), files)
-        write_year(f, season.get_results(), season.get_results_new2(), files)
-        write_year(f, season.get_results(), season.get_results_new3(), files)
-        write_year(f, season.get_results(), season.get_results_new4(), files)
-        write_year(f, season.get_results(), season.get_results_new5(), files)
-        write_year(f, season.get_results(), season.get_results_new6(), files)
-        f.close()
+                filew = boat+ "/conclusion" + ".txt"
+                f = open(filew, "w")
+                write_year(f, season.get_results(), season.get_results_new1(), files)
+                write_year(f, season.get_results(), season.get_results_new2(), files)
+                write_year(f, season.get_results(), season.get_results_new3(), files)
+                write_medium_correl_year(f, season.get_results(), season.get_results_new1(), season.get_results_new2(), season.get_results_new3())
+                write_year(f, season.get_results(), season.get_results_new4(), files)
+                write_year(f, season.get_results(), season.get_results_new5(), files)
+                write_year(f, season.get_results(), season.get_results_new6(), files)
+                write_medium_correl_year(f, season.get_results(), season.get_results_new4(), season.get_results_new5(),
+                                         season.get_results_new6())
+                f.close()
 
