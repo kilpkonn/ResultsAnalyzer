@@ -1,5 +1,6 @@
 from results_analyzer import Analyzer
 from results_analyzer import Place
+import math
 
 
 class Participant:
@@ -207,15 +208,17 @@ class Season:
         results = {}
         for n, regatta in enumerate(self.regattas):
             newregatta = Regatta(regatta)
+            if n == 0:
+                count = int(math.ceil((len(newregatta.get_results_normal()) + 20)/10))*10
             for i, sailor in enumerate(newregatta.get_results_normal()):
                 if i < 3:
                     extra = 3-i
                 else:
                     extra = 0
                 if sailor.name not in results:
-                    results[sailor.name] = [Competition(n+1, 50-i, extra)]
+                    results[sailor.name] = [Competition(n+1, count-i, extra)]
                 else:
-                    results[sailor.name].append(Competition(n+1, 50-i, extra))
+                    results[sailor.name].append(Competition(n+1, count-i, extra))
         return self.sort_year(results)
 
     def get_results_finals(self):
@@ -225,6 +228,8 @@ class Season:
         for n, regatta in enumerate(self.regattas):
             newregatta = Regatta(regatta)
             analyzer.load_results(regatta)
+            if n == 0:
+                count = int(math.ceil((len(newregatta.get_results_normal()) + 20)/10))*10
             if analyzer.is_finals():
                 for i, sailor in enumerate(newregatta.get_results_normal_finals()):
                     for j, man in enumerate(newregatta.get_results_normal()):
@@ -235,9 +240,9 @@ class Season:
                                 extra = 0
                             break
                     if sailor.name not in results:
-                        results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                        results[sailor.name] = [Competition(n + 1, count - i, extra)]
                     else:
-                        results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+                        results[sailor.name].append(Competition(n + 1, count - i, extra))
             else:
                 for i, sailor in enumerate(newregatta.get_results_normal()):
                     if i < 3:
@@ -245,9 +250,9 @@ class Season:
                     else:
                         extra = 0
                     if sailor.name not in results:
-                        results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                        results[sailor.name] = [Competition(n + 1, count - i, extra)]
                     else:
-                        results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+                        results[sailor.name].append(Competition(n + 1, count - i, extra))
         return self.sort_year(results)
 
     def get_results_old1(self):
@@ -257,6 +262,8 @@ class Season:
         for n, regatta in enumerate(self.regattas):
             newregatta = Regatta(regatta)
             analyzer.load_results(regatta)
+            if n == 0:
+                count = int(math.ceil((len(newregatta.get_results_normal()) + 20)/10))*10
             if analyzer.is_finals():
                 for i, sailor in enumerate(newregatta.get_results_2()):
                     for j, man in enumerate(newregatta.get_results_normal()):
@@ -267,9 +274,9 @@ class Season:
                                 extra = 0
                             break
                     if sailor.name not in results:
-                        results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                        results[sailor.name] = [Competition(n + 1, count - i, extra)]
                     else:
-                        results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+                        results[sailor.name].append(Competition(n + 1, count - i, extra))
             else:
                 for i, sailor in enumerate(newregatta.get_results_normal()):
                     if i < 3:
@@ -277,9 +284,9 @@ class Season:
                     else:
                         extra = 0
                     if sailor.name not in results:
-                        results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                        results[sailor.name] = [Competition(n + 1, count - i, extra)]
                     else:
-                        results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+                        results[sailor.name].append(Competition(n + 1, count - i, extra))
 
         return self.sort_year(results)
 
@@ -290,6 +297,8 @@ class Season:
         for n, regatta in enumerate(self.regattas):
             newregatta = Regatta(regatta)
             analyzer.load_results(regatta)
+            if n == 0:
+                count = int(math.ceil((len(newregatta.get_results_normal()) + 20)/10))*10
             if analyzer.is_finals():
                 for i, sailor in enumerate(newregatta.get_results_3()):
                     for j, man in enumerate(newregatta.get_results_normal()):
@@ -300,9 +309,9 @@ class Season:
                                 extra = 0
                             break
                     if sailor.name not in results:
-                        results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                        results[sailor.name] = [Competition(n + 1, count - i, extra)]
                     else:
-                        results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+                        results[sailor.name].append(Competition(n + 1, count - i, extra))
             else:
                 for i, sailor in enumerate(newregatta.get_results_normal()):
                     if i < 3:
@@ -322,6 +331,8 @@ class Season:
         for n, regatta in enumerate(self.regattas):
             newregatta = Regatta(regatta)
             analyzer.load_results(regatta)
+            if n == 0:
+                count = int(math.ceil((len(newregatta.get_results_normal()) + 20)/10))*10
             if analyzer.is_finals():
                 for i, sailor in enumerate(newregatta.get_results_4()):
                     for j, man in enumerate(newregatta.get_results_normal()):
@@ -332,9 +343,9 @@ class Season:
                                 extra = 0
                             break
                     if sailor.name not in results:
-                        results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                        results[sailor.name] = [Competition(n + 1, count - i, extra)]
                     else:
-                        results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+                        results[sailor.name].append(Competition(n + 1, count - i, extra))
             else:
                 for i, sailor in enumerate(newregatta.get_results_normal()):
                     if i < 3:
@@ -342,9 +353,9 @@ class Season:
                     else:
                         extra = 0
                     if sailor.name not in results:
-                        results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                        results[sailor.name] = [Competition(n + 1, count - i, extra)]
                     else:
-                        results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+                        results[sailor.name].append(Competition(n + 1, count - i, extra))
         return self.sort_year(results)
 
     def get_results_new1(self):
@@ -352,6 +363,8 @@ class Season:
         results = {}
         for n, regatta in enumerate(self.regattas):
             newregatta = Regatta(regatta)
+            if n == 0:
+                count = int(math.ceil((len(newregatta.get_results_normal()) + 20)/10))*10
             for i, sailor in enumerate(newregatta.get_results_newfinals_1()):
                 for j, man in enumerate(newregatta.get_results_normal()):
                     if sailor.name == man.name:
@@ -361,9 +374,9 @@ class Season:
                             extra = 0
                         break
                 if sailor.name not in results:
-                    results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                    results[sailor.name] = [Competition(n + 1, count - i, extra)]
                 else:
-                    results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+                    results[sailor.name].append(Competition(n + 1, count - i, extra))
         return self.sort_year(results)
 
     def get_results_new2(self):
@@ -371,6 +384,8 @@ class Season:
         results = {}
         for n, regatta in enumerate(self.regattas):
             newregatta = Regatta(regatta)
+            if n == 0:
+                count = int(math.ceil((len(newregatta.get_results_normal()) + 20)/10))*10
             for i, sailor in enumerate(newregatta.get_results_newfinals_2()):
                 for j, man in enumerate(newregatta.get_results_normal()):
                     if sailor.name == man.name:
@@ -380,9 +395,9 @@ class Season:
                             extra = 0
                         break
                 if sailor.name not in results:
-                    results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                    results[sailor.name] = [Competition(n + 1, count - i, extra)]
                 else:
-                    results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+                    results[sailor.name].append(Competition(n + 1, count - i, extra))
         return self.sort_year(results)
 
     def get_results_new3(self):
@@ -390,6 +405,8 @@ class Season:
         results = {}
         for n, regatta in enumerate(self.regattas):
             newregatta = Regatta(regatta)
+            if n == 0:
+                count = int(math.ceil((len(newregatta.get_results_normal()) + 20)/10))*10
             for i, sailor in enumerate(newregatta.get_results_newfinals_3()):
                 for j, man in enumerate(newregatta.get_results_normal()):
                     if sailor.name == man.name:
@@ -399,9 +416,9 @@ class Season:
                             extra = 0
                         break
                 if sailor.name not in results:
-                    results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                    results[sailor.name] = [Competition(n + 1, count - i, extra)]
                 else:
-                    results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+                    results[sailor.name].append(Competition(n + 1, count - i, extra))
         return self.sort_year(results)
 
     def get_results_new4(self):
@@ -409,6 +426,8 @@ class Season:
         results = {}
         for n, regatta in enumerate(self.regattas):
             newregatta = Regatta(regatta)
+            if n == 0:
+                count = int(math.ceil((len(newregatta.get_results_normal()) + 20)/10))*10
             for i, sailor in enumerate(newregatta.get_results_oldfinals_1()):
                 for j, man in enumerate(newregatta.get_results_normal()):
                     if sailor.name == man.name:
@@ -418,9 +437,9 @@ class Season:
                             extra = 0
                         break
                 if sailor.name not in results:
-                    results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                    results[sailor.name] = [Competition(n + 1, count - i, extra)]
                 else:
-                    results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+                    results[sailor.name].append(Competition(n + 1, count - i, extra))
         return self.sort_year(results)
 
     def get_results_new5(self):
@@ -428,6 +447,8 @@ class Season:
         results = {}
         for n, regatta in enumerate(self.regattas):
             newregatta = Regatta(regatta)
+            if n == 0:
+                count = int(math.ceil((len(newregatta.get_results_normal()) + 20)/10))*10
             for i, sailor in enumerate(newregatta.get_results_oldfinals_2()):
                 for j, man in enumerate(newregatta.get_results_normal()):
                     if sailor.name == man.name:
@@ -437,9 +458,9 @@ class Season:
                             extra = 0
                         break
                 if sailor.name not in results:
-                    results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                    results[sailor.name] = [Competition(n + 1, count - i, extra)]
                 else:
-                    results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+                    results[sailor.name].append(Competition(n + 1, count - i, extra))
         return self.sort_year(results)
 
     def get_results_new6(self):
@@ -447,6 +468,8 @@ class Season:
         results = {}
         for n, regatta in enumerate(self.regattas):
             newregatta = Regatta(regatta)
+            if n == 0:
+                count = int(math.ceil((len(newregatta.get_results_normal()) + 20)/10))*10
             for i, sailor in enumerate(newregatta.get_results_oldfinals_3()):
                 for j, man in enumerate(newregatta.get_results_normal()):
                     if sailor.name == man.name:
@@ -456,7 +479,7 @@ class Season:
                             extra = 0
                         break
                 if sailor.name not in results:
-                    results[sailor.name] = [Competition(n + 1, 50 - i, extra)]
+                    results[sailor.name] = [Competition(n + 1, count - i, extra)]
                 else:
-                    results[sailor.name].append(Competition(n + 1, 50 - i, extra))
+                    results[sailor.name].append(Competition(n + 1, count - i, extra))
         return self.sort_year(results)

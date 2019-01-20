@@ -294,6 +294,10 @@ def write_medium_correl_year(f, original, list1, list2, list3):
             line = "Correlation all (top15) =\t" + str(round(pearsonr(x, y)[0], 2))
             f.write(line)
             f.write("\n")
+        elif i == 19:
+            line = "Correlation all (top20) =\t" + str(round(pearsonr(x, y)[0], 2))
+            f.write(line)
+            f.write("\n")
     f.write("-"*303)
     f.write("\n")
 
@@ -304,10 +308,12 @@ if __name__ == "__main__":
         class_folders = [f.path for f in os.scandir(folder) if f.is_dir()]
         for boat in class_folders:
             k = 0
+            files = []
             for csvfile in os.listdir(boat):
                 if csvfile.endswith(".csv"):
                     k += 1
                     file = os.path.join(boat, csvfile)
+                    files.append(file)
                     regatta = Regatta(file)
                     analyzer.load_results(file)
                     if analyzer.is_finals():
@@ -337,7 +343,7 @@ if __name__ == "__main__":
                         f.close()
 
             season = Season(files)
-            if int(year.replace("_", "")) > 2014:
+            if int(folder.replace("D:\\Docs\\Uurimistöö\\", "")) > 2014:
 
                 filew = boat+ "/conclusion" + ".txt"
                 f = open(filew, "w")
