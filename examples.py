@@ -40,7 +40,10 @@ def write_file(f, original, analyzed, original_has_finals):
             if analyzed[i].name == b.name:
                 orig = original.index(b)
         change = orig - i
-        chan = chan + abs(change)
+        for g in analyzed:
+            if sailor.name == g.name:
+                ch = analyzed.index(g) - i
+        chan += abs(ch)
         f.write(get_line(i + 1, sailor.name, sailor.club, sailor.races, sailor.get_points_after(races = len(sailor.races)),
                          sailor.get_points_after(races = len(sailor.races), discount=1), "\t", sailor.silver, sailor.gold, change, original_has_finals, False))
         f.write("\t | \t")

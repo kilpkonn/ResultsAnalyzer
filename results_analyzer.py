@@ -191,14 +191,14 @@ class Analyzer:
             elif "sub_cat" in self.syntax[i]:
                 sub_cats.append(self.syntax[i].replace("sub_cat_", ""))
             elif self.syntax[i] == "race":
-                node = node.replace('(', '').replace(')', '').replace('[', '').replace(']', '').strip()
+                node = node.replace('(', '').replace(')', '').replace('[', '').replace(']', '').replace('-', '').strip()
                 races.append(self._get_clean_place(node))
             elif self.syntax[i] == "silver":
                 silver = self._get_clean_place(node) if node != '' else None
             elif self.syntax[i] == "gold":
                 gold = self._get_clean_place(node) if node != '' else None
 
-        return Sailor(name.strip(), sail_nr, gender, sub_cats, nat, races, club.strip(), silver, gold)
+        return Sailor(name.strip(), sail_nr, gender, sub_cats, nat, races, club, silver, gold)
 
     def get_competitors(self) -> list:
         """Get competitors."""
