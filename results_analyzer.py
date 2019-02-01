@@ -83,8 +83,8 @@ class Sailor:
         discounts = sum(sorted([x.points for x in self.races[:races] if x.symbol != 'DNE'], reverse=True)[:discount])
         if calc_extras:
             extra = sum([(i + 1)**-1 * x.points * 10**-3 for i, x in
-                         enumerate(sorted(self.races, key=lambda x: x.points))])
-            extra += sum([(i + 1)**7 * x.points * 10**-15 for i, x in enumerate(self.races)])
+                         enumerate(sorted(self.races[:races], key=lambda x: x.points))])
+            extra += sum([(i + 1)**7 * x.points * 10**-15 for i, x in enumerate(self.races[:races])])
         else:
             extra = 0
         return sum([x.points for x in self.races[:races]]) + extra - discounts
@@ -174,7 +174,7 @@ class Analyzer:
         sub_cats = []
         nat = None
         races = []
-        club = ''
+        club = None
         silver = None
         gold = None
         for i, node in enumerate(line):
@@ -183,7 +183,7 @@ class Analyzer:
             elif self.syntax[i] == "sail_nr":
                 sail_nr = node
             elif self.syntax[i] == "club":
-                club += node
+                club = node
             elif self.syntax[i] == "nat":
                 nat = node
             elif self.syntax[i] == "gender":
@@ -191,14 +191,14 @@ class Analyzer:
             elif "sub_cat" in self.syntax[i]:
                 sub_cats.append(self.syntax[i].replace("sub_cat_", ""))
             elif self.syntax[i] == "race":
-                node = node.replace('(', '').replace(')', '').replace('[', '').replace(']', '').strip()
+                node = node.replace('(', '').replace(')', '').replace('[', '').replace(']', '').replace('-', '').strip()
                 races.append(self._get_clean_place(node))
             elif self.syntax[i] == "silver":
                 silver = self._get_clean_place(node) if node != '' else None
             elif self.syntax[i] == "gold":
                 gold = self._get_clean_place(node) if node != '' else None
 
-        return Sailor(name.strip(), sail_nr, gender, sub_cats, nat, races, club.strip(), silver, gold)
+        return Sailor(name.strip(), sail_nr, gender, sub_cats, nat, races, club, silver, gold)
 
     def get_competitors(self) -> list:
         """Get competitors."""
@@ -223,9 +223,9 @@ class Analyzer:
         """Get results with finals."""
         results = self.get_results(discount=discount, races=races)
         results[3:10] = sorted(results[3:10], key=lambda x: x.silver.points)
-        results[3].silver = Place(100, "100")
+        results[3].silver = Place(0, "0")
         results[:4] = sorted(results[:4], key=lambda x: x.gold.points)
-        for i in self.data:
+        for i in results:
             i.fleet_races(races)
         results = self.get_real_places(results)
         return results
@@ -257,18 +257,15 @@ class Analyzer:
         return Place(pos, sym)
 
     def is_finals(self):
-        if self.get_competitors()[0].gold:
-            return True
-        else:
-            return False
+        return any([x.silver for x in self.get_competitors()])
 
     def get_real_places(self, list_1):
         results = list_1
         for n, i in enumerate(results[:4]):
             if i.silver:
-                if i.silver.points != 100:
+                if i.silver.points != 0:
                     i.silver = None
-                elif i.silver.points == 100:
+                elif i.silver.points == 0:
                     i.silver = Place(1, "1")
             else:
                 i.silver = None
