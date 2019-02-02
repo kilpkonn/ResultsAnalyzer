@@ -14,7 +14,7 @@ def get_line(i, name, club, races, total, nett, separator = str, silver=None, go
     total_net = separator.join(["", "{0:>6}", "{1:>5}"])
     finals = separator.join(["{0:>8}", "{1:>4}"])
     stats = separator + "{0:>7}"
-    line = always.format(i, name, club, separator.join([format(str(x), '>3') for x in races]))
+    line = always.format(i, name, club, separator.join([format(str(x), '>4') for x in races]))
     line += total_net.format(total, nett)
     line += finals.format(str(silver), str(gold)) if show_finals else ''
     line += stats.format(change) if display_stats else ''
@@ -42,7 +42,7 @@ def write_file(f, original, analyzed, original_has_finals):
         change = orig - i
         for g in analyzed:
             if sailor.name == g.name:
-                ch = analyzed.index(g) - i
+                ch = i - analyzed.index(g)
         chan += abs(ch)
         f.write(get_line(i + 1, sailor.name, sailor.club, sailor.races, sailor.get_points_after(races = len(sailor.races)),
                          sailor.get_points_after(races = len(sailor.races), discount=1), "\t", sailor.silver, sailor.gold, change, original_has_finals, False))
@@ -212,7 +212,7 @@ def write_year(f, original, converted, files):
     f.write("\n")
 
 def write_correl(fi, x, y, top):
-    correl = round(pearsonr(x, y)[0], 2)
+    correl = int(pearsonr(x, y)[0]*100)/100
     li = "Correlation (top"+str(top)+ ") = \t"
     fi.write(format(li, "<22"))
     fi.write(format(str(correl), ">4"))
@@ -243,19 +243,19 @@ def write_medium_correl(f, original, list1, list2, list3):
                 break
         y.append(a/3)
         if i == 2:
-            line = "Correlation all (top3) =\t" + str(round(pearsonr(x, y)[0], 2))
+            line = "Correlation all (top3) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
             f.write(line)
             f.write("\n")
         elif i == 4:
-            line = "Correlation all (top5) =\t" + str(round(pearsonr(x, y)[0], 2))
+            line = "Correlation all (top5) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
             f.write(line)
             f.write("\n")
         elif i == 9:
-            line = "Correlation all (top10) =\t" + str(round(pearsonr(x, y)[0], 2))
+            line = "Correlation all (top10) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
             f.write(line)
             f.write("\n")
         elif i == 14:
-            line = "Correlation all (top15) =\t" + str(round(pearsonr(x, y)[0], 2))
+            line = "Correlation all (top15) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
             f.write(line)
             f.write("\n")
     f.write("-"*303)
@@ -282,23 +282,23 @@ def write_medium_correl_year(f, original, list1, list2, list3):
                 break
         y.append(a/3)
         if i == 2:
-            line = "Correlation all (top3) =\t" + str(round(pearsonr(x, y)[0], 2))
+            line = "Correlation all (top3) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
             f.write(line)
             f.write("\n")
         elif i == 4:
-            line = "Correlation all (top5) =\t" + str(round(pearsonr(x, y)[0], 2))
+            line = "Correlation all (top5) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
             f.write(line)
             f.write("\n")
         elif i == 9:
-            line = "Correlation all (top10) =\t" + str(round(pearsonr(x, y)[0], 2))
+            line = "Correlation all (top10) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
             f.write(line)
             f.write("\n")
         elif i == 14:
-            line = "Correlation all (top15) =\t" + str(round(pearsonr(x, y)[0], 2))
+            line = "Correlation all (top15) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
             f.write(line)
             f.write("\n")
         elif i == 19:
-            line = "Correlation all (top20) =\t" + str(round(pearsonr(x, y)[0], 2))
+            line = "Correlation all (top20) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
             f.write(line)
             f.write("\n")
     f.write("-"*303)
