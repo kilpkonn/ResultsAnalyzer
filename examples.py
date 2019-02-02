@@ -14,8 +14,8 @@ def get_line(i, name, club, races, total, nett, separator = str, silver=None, go
     total_net = separator.join(["", "{0:>6}", "{1:>5}"])
     finals = separator.join(["{0:>8}", "{1:>4}"])
     stats = separator + "{0:>7}"
-    line = always.format(i, name, club, separator.join([format(str(x), '>4') for x in races]))
-    line += total_net.format(total, nett)
+    line = always.format(i, name, club, separator.join([format(str(x).replace('.0',''), '>4') for x in races]))
+    line += total_net.format(str(total).replace('.0', ''), str(nett).replace('.0', ''))
     line += finals.format(str(silver), str(gold)) if show_finals else ''
     line += stats.format(change) if display_stats else ''
     return line.replace("None", ' ' * 4)
