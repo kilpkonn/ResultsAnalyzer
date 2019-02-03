@@ -1,6 +1,7 @@
 """Examples."""
 from results_analyzer import Analyzer
 from season import Regatta, Season
+from Graph import draw_graph
 import os
 from numpy import array
 import numpy as np
@@ -222,7 +223,7 @@ def write_change(f, change, top):
     f.write(format(li, "<24"))
     f.write(format(str(change), ">4"))
 
-def write_medium_correl(f, original, list1, list2, list3):
+def write_medium_correl(f, path, original, list1, list2, list3):
     x = []
     y = []
     for i, sailor in enumerate(original):
@@ -251,11 +252,16 @@ def write_medium_correl(f, original, list1, list2, list3):
             f.write(line)
             f.write("\n")
         elif i == 9:
+            draw_graph(x, y, path, "blue")
             line = "Correlation all (top10) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
             f.write(line)
             f.write("\n")
         elif i == 14:
             line = "Correlation all (top15) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
+            f.write(line)
+            f.write("\n")
+        elif i == 19:
+            line = "Correlation all (top20) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
             f.write(line)
             f.write("\n")
     f.write("-"*303)
@@ -322,26 +328,28 @@ if __name__ == "__main__":
                     if analyzer.is_finals():
 
                         filew = boat+ "/" +str(k)+".txt"
+                        picpath = boat + "/" + "Graph"
                         f = open(filew, "w")
                         write_file(f, regatta.get_results_normal_finals(), regatta.get_results_normal(), True)
                         write_file(f, regatta.get_results_normal_finals(), regatta.get_results_2(), True)
                         write_file(f, regatta.get_results_normal_finals(), regatta.get_results_3(), True)
-                        write_medium_correl(f, regatta.get_results_normal_finals(), regatta.get_results_normal(),
+                        write_medium_correl(f, picpath, regatta.get_results_normal_finals(), regatta.get_results_normal(),
                                             regatta.get_results_2(), regatta.get_results_3())
                         write_file(f, regatta.get_results_normal_finals(), regatta.get_results_4(), True)
                         f.close()
                     else:
                         filew = boat+ "/" +str(k) + ".txt"
+                        picpath = boat + "/" + "Graph"
                         f = open(filew, "w")
                         write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_1(), False)
                         write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_2(), False)
                         write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_3(), False)
-                        write_medium_correl(f, regatta.get_results_normal(), regatta.get_results_newfinals_1(),
+                        write_medium_correl(f, picpath, regatta.get_results_normal(), regatta.get_results_newfinals_1(),
                                             regatta.get_results_newfinals_2(), regatta.get_results_newfinals_3())
                         write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(), False)
                         write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_2(), False)
                         write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_3(), False)
-                        write_medium_correl(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(),
+                        write_medium_correl(f, picpath, regatta.get_results_normal(), regatta.get_results_oldfinals_1(),
                                             regatta.get_results_oldfinals_2(), regatta.get_results_oldfinals_3())
                         f.close()
 
