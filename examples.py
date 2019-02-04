@@ -312,7 +312,7 @@ def write_medium_correl_year(f, original, list1, list2, list3):
 
 if __name__ == "__main__":
     analyzer = Analyzer()
-    year_folders = [f.path for f in os.scandir("D:\\Docs\\Uurimistöö\\") if f.is_dir()]
+    year_folders = [f.path for f in os.scandir("./Data/") if f.is_dir()]
     for folder in year_folders:
         class_folders = [f.path for f in os.scandir(folder) if f.is_dir()]
         for boat in class_folders:
@@ -353,13 +353,14 @@ if __name__ == "__main__":
                         f.close()
 
             season = Season(files)
-            if int(folder.replace("D:\\Docs\\Uurimistöö\\", "")) > 2014:
+            if int(folder.replace(os.curdir + "/Data/", "")) > 2014:
 
                 filew = boat+ "/conclusion" + ".txt"
                 f = open(filew, "w")
                 write_year(f, season.get_results_finals(), season.get_results(), files)
                 write_year(f, season.get_results_finals(), season.get_results_old1(), files)
                 write_year(f, season.get_results_finals(), season.get_results_old2(), files)
+                write_medium_correl_year(f, season.get_results_finals(), season.get_results(), season.get_results_old1(), season.get_results_old2())
                 write_year(f, season.get_results_finals(), season.get_results_old3(), files)
                 f.close()
             else:
