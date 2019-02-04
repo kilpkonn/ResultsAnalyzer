@@ -1,7 +1,7 @@
 """Examples."""
 from results_analyzer import Analyzer
 from season import Regatta, Season
-from Graph import draw_graph
+from grapher import draw_graph
 import os
 from numpy import array
 import numpy as np
@@ -252,7 +252,7 @@ def write_medium_correl(f, path, original, list1, list2, list3):
             f.write(line)
             f.write("\n")
         elif i == 9:
-            draw_graph(x, y, path, "blue")
+            draw_graph(x, y, path)
             line = "Correlation all (top10) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
             f.write(line)
             f.write("\n")
@@ -325,10 +325,9 @@ if __name__ == "__main__":
                     files.append(file)
                     regatta = Regatta(file)
                     analyzer.load_results(file)
+                    picpath = boat + "/" + "Graph " + str(k)
                     if analyzer.is_finals():
-
                         filew = boat+ "/" +str(k)+".txt"
-                        picpath = boat + "/" + "Graph"
                         f = open(filew, "w")
                         write_file(f, regatta.get_results_normal_finals(), regatta.get_results_normal(), True)
                         write_file(f, regatta.get_results_normal_finals(), regatta.get_results_2(), True)
@@ -339,7 +338,7 @@ if __name__ == "__main__":
                         f.close()
                     else:
                         filew = boat+ "/" +str(k) + ".txt"
-                        picpath = boat + "/" + "Graph"
+                        picpath2 = boat + "/" + "Graph " + str(k) + ".1.png"
                         f = open(filew, "w")
                         write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_1(), False)
                         write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_2(), False)
@@ -349,7 +348,7 @@ if __name__ == "__main__":
                         write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(), False)
                         write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_2(), False)
                         write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_3(), False)
-                        write_medium_correl(f, picpath, regatta.get_results_normal(), regatta.get_results_oldfinals_1(),
+                        write_medium_correl(f, picpath2, regatta.get_results_normal(), regatta.get_results_oldfinals_1(),
                                             regatta.get_results_oldfinals_2(), regatta.get_results_oldfinals_3())
                         f.close()
 
