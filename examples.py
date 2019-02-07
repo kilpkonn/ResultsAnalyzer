@@ -53,31 +53,31 @@ def write_file(f, original, analyzed, original_has_finals):
         f.write("\n")
         if i == 2:
             changes.append(round(chan/(i+1), 2))
-            x1, y1 = create_array(original, analyzed, i+1)
+            x1, y1 = create_array(original, analyzed, i)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
         elif i == 4:
             changes.append(round(chan / (i + 1), 2))
-            x1, y1 = create_array(original, analyzed, i + 1)
+            x1, y1 = create_array(original, analyzed, i)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
         elif i == 9:
             changes.append(round(chan / (i + 1), 2))
-            x1, y1 = create_array(original, analyzed, i + 1)
+            x1, y1 = create_array(original, analyzed, i)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
         elif i == 14:
             changes.append(round(chan / (i + 1), 2))
-            x1, y1 = create_array(original, analyzed, i + 1)
+            x1, y1 = create_array(original, analyzed, i)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
         elif i == 19:
             changes.append(round(chan / (i + 1), 2))
-            x1, y1 = create_array(original, analyzed, i + 1)
+            x1, y1 = create_array(original, analyzed, i)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
@@ -155,31 +155,31 @@ def write_year(f, original, converted, files):
                 chan = chan + change
         if i == 2:
             changes.append(round(chan/(i+1), 2))
-            x1, y1 = create_array_season(original, converted, i+1)
+            x1, y1 = create_array_season(original, converted, i)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
         if i == 4:
             changes.append(round(chan / (i + 1), 2))
-            x1, y1 = create_array_season(original, converted, i + 1)
+            x1, y1 = create_array_season(original, converted, i)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
         if i == 9:
             changes.append(round(chan / (i + 1), 2))
-            x1, y1 = create_array_season(original, converted, i + 1)
+            x1, y1 = create_array_season(original, converted, i)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
         if i == 14:
             changes.append(round(chan / (i + 1), 2))
-            x1, y1 = create_array_season(original, converted, i + 1)
+            x1, y1 = create_array_season(original, converted, i)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
         if i == 19:
             changes.append(round(chan / (i + 1), 2))
-            x1, y1 = create_array_season(original, converted, i + 1)
+            x1, y1 = create_array_season(original, converted, i)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
@@ -226,18 +226,24 @@ def write_change(f, change, top):
 def write_medium_correl(f, path, original, list1, list2, list3):
     x = []
     y = []
+    c = []
+    d = []
+    e = []
     for i, sailor in enumerate(original):
         x.append(i+1)
         a = 0
         b = 0
         for j, man in enumerate(list1):
             if sailor.name == man.name:
+                c.append(j+1)
                 a += j + 1
                 b += 1
             if sailor.name == list2[j].name:
+                d.append(j + 1)
                 a += j + 1
                 b += 1
             if sailor.name == list3[j].name:
+                e.append(j + 1)
                 a += j + 1
                 b += 1
             if b == 3:
@@ -310,6 +316,52 @@ def write_medium_correl_year(f, original, list1, list2, list3):
     f.write("-"*303)
     f.write("\n")
 
+
+def table_row(rang, a):
+    return '{0:>4}\t{1:>}'.format(rang, "\t".join([format(str(x), '>5') for x in a]))
+
+def table_syntax(a):
+    return '{0:>4}\t{1:>}'.format("", "\t".join([format("M" + str(x+1), '>5') for x in range(len(a))]))
+
+def write_table(f,original,list1,list2,list3,list4=None):
+    n = -1
+    a = []
+    b = []
+    c = []
+    d = []
+    e = []
+    for i, sailor in enumerate(original):
+        a.append(i+1)
+        end = 0
+        for j, man in enumerate(list1):
+            if sailor.name == man.name:
+                end += 1
+                b.append(j+1)
+            if sailor.name == list2[j].name:
+                end += 1
+                c.append(j+1)
+            if sailor.name == list3[j].name:
+                end += 1
+                d.append(j+1)
+            if list4 and sailor.name == list4[j].name:
+                end += 1
+                e.append(j+1)
+            if end == 4:
+                break
+        if i == 2 or 5 * n + 4 == i and i < 20:
+            maybe = [int(pearsonr(a, b)[0] * 100) / 100, int(pearsonr(a, c)[0] * 100) / 100,
+                     int(pearsonr(a, d)[0] * 100) / 100]
+            full = maybe if not list4 else maybe + [int(pearsonr(a, e)[0] * 100) / 100]
+            if i == 2:
+                f.write(table_syntax(full))
+                f.write("\n")
+            f.write(table_row('1-' + str(i+1), full))
+            f.write("\n")
+            n += 1
+    f.write("-"*303)
+    f.write("\n")
+
+
 if __name__ == "__main__":
     analyzer = Analyzer()
     year_folders = [f.path for f in os.scandir("./Data/") if f.is_dir()]
@@ -335,6 +387,8 @@ if __name__ == "__main__":
                         write_medium_correl(f, picpath, regatta.get_results_normal_finals(), regatta.get_results_normal(),
                                             regatta.get_results_2(), regatta.get_results_3())
                         write_file(f, regatta.get_results_normal_finals(), regatta.get_results_4(), True)
+                        write_table(f, regatta.get_results_normal_finals(), regatta.get_results_normal(),
+                                            regatta.get_results_2(), regatta.get_results_3(), regatta.get_results_4())
                         f.close()
                     else:
                         filew = boat+ "/" +str(k) + ".txt"
@@ -345,10 +399,14 @@ if __name__ == "__main__":
                         write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_3(), False)
                         write_medium_correl(f, picpath, regatta.get_results_normal(), regatta.get_results_newfinals_1(),
                                             regatta.get_results_newfinals_2(), regatta.get_results_newfinals_3())
+                        write_table(f, regatta.get_results_normal(), regatta.get_results_newfinals_1(),
+                                    regatta.get_results_newfinals_2(), regatta.get_results_newfinals_3())
                         write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(), False)
                         write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_2(), False)
                         write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_3(), False)
                         write_medium_correl(f, picpath2, regatta.get_results_normal(), regatta.get_results_oldfinals_1(),
+                                            regatta.get_results_oldfinals_2(), regatta.get_results_oldfinals_3())
+                        write_table(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(),
                                             regatta.get_results_oldfinals_2(), regatta.get_results_oldfinals_3())
                         f.close()
 
