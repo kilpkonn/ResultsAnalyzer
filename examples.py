@@ -226,56 +226,38 @@ def write_change(f, change, top):
 def write_medium_correl(f, path, original, list1, list2, list3):
     x = []
     y = []
-    c = []
-    d = []
-    e = []
+    n = -1
     for i, sailor in enumerate(original):
         x.append(i+1)
         a = 0
         b = 0
         for j, man in enumerate(list1):
             if sailor.name == man.name:
-                c.append(j+1)
                 a += j + 1
                 b += 1
             if sailor.name == list2[j].name:
-                d.append(j + 1)
                 a += j + 1
                 b += 1
             if sailor.name == list3[j].name:
-                e.append(j + 1)
                 a += j + 1
                 b += 1
             if b == 3:
                 break
         y.append(a/3)
-        if i == 2:
-            line = "Correlation all (top3) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
+        if i == 2 or 5 * n + 4 == i and i < 20:
+            if i == 9:
+                draw_graph(x, y, path)
+            line = "Correlation all (top" + str(i+1) + ") =\t" + str(int(pearsonr(x, y)[0] * 100) / 100)
             f.write(line)
             f.write("\n")
-        elif i == 4:
-            line = "Correlation all (top5) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
-            f.write(line)
-            f.write("\n")
-        elif i == 9:
-            draw_graph(x, y, path)
-            line = "Correlation all (top10) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
-            f.write(line)
-            f.write("\n")
-        elif i == 14:
-            line = "Correlation all (top15) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
-            f.write(line)
-            f.write("\n")
-        elif i == 19:
-            line = "Correlation all (top20) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
-            f.write(line)
-            f.write("\n")
+            n += 1
     f.write("-"*303)
     f.write("\n")
 
 def write_medium_correl_year(f, path, original, list1, list2, list3):
     x = []
     y = []
+    n = -1
     for i, sailor in enumerate(original):
         x.append(i+1)
         a = 0
@@ -293,27 +275,13 @@ def write_medium_correl_year(f, path, original, list1, list2, list3):
             if b == 3:
                 break
         y.append(a/3)
-        if i == 2:
-            line = "Correlation all (top3) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
+        if i == 2 or 5 * n + 4 == i and i < 20:
+            if i == 9:
+                draw_graph(x, y, path)
+            line = "Correlation all (top" + str(i+1) + ") =\t" + str(int(pearsonr(x, y)[0] * 100) / 100)
             f.write(line)
             f.write("\n")
-        elif i == 4:
-            line = "Correlation all (top5) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
-            f.write(line)
-            f.write("\n")
-        elif i == 9:
-            draw_graph(x, y, path)
-            line = "Correlation all (top10) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
-            f.write(line)
-            f.write("\n")
-        elif i == 14:
-            line = "Correlation all (top15) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
-            f.write(line)
-            f.write("\n")
-        elif i == 19:
-            line = "Correlation all (top20) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
-            f.write(line)
-            f.write("\n")
+            n += 1
     f.write("-"*303)
     f.write("\n")
 
@@ -436,4 +404,3 @@ if __name__ == "__main__":
                 write_medium_correl_year(f, ypicpath2, season.get_results(), season.get_results_new4(), season.get_results_new5(),
                                          season.get_results_new6())
                 f.close()
-
