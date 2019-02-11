@@ -11,7 +11,7 @@ from scipy.stats import pearsonr
 def get_line(i, name, club, races, total, nett, separator = str, silver=None, gold=None, change=None, show_finals=False,
              display_stats=False):
     """Get line."""
-    always = separator.join(["{0:>3}", "{1:<30}", "{2:<10}", "{3:>}"])
+    always = separator.join(["{0:>3}", "{1:<30}", "{2:<25}", "{3:>}"])
     total_net = separator.join(["", "{0:>6}", "{1:>5}"])
     finals = separator.join(["{0:>8}", "{1:>4}"])
     stats = separator + "{0:>7}"
@@ -273,7 +273,7 @@ def write_medium_correl(f, path, original, list1, list2, list3):
     f.write("-"*303)
     f.write("\n")
 
-def write_medium_correl_year(f, original, list1, list2, list3):
+def write_medium_correl_year(f, path, original, list1, list2, list3):
     x = []
     y = []
     for i, sailor in enumerate(original):
@@ -302,6 +302,7 @@ def write_medium_correl_year(f, original, list1, list2, list3):
             f.write(line)
             f.write("\n")
         elif i == 9:
+            draw_graph(x, y, path)
             line = "Correlation all (top10) =\t" + str(int(pearsonr(x, y)[0]*100)/100)
             f.write(line)
             f.write("\n")
@@ -411,28 +412,28 @@ if __name__ == "__main__":
                         f.close()
 
             season = Season(files)
+            ypicpath = boat + "/" + "Year Graph"
             if int(folder.replace(os.curdir + "/Data/", "")) > 2014:
-
                 filew = boat+ "/conclusion" + ".txt"
                 f = open(filew, "w")
                 write_year(f, season.get_results_finals(), season.get_results(), files)
                 write_year(f, season.get_results_finals(), season.get_results_old1(), files)
                 write_year(f, season.get_results_finals(), season.get_results_old2(), files)
-                write_medium_correl_year(f, season.get_results_finals(), season.get_results(), season.get_results_old1(), season.get_results_old2())
+                write_medium_correl_year(f, ypicpath, season.get_results_finals(), season.get_results(), season.get_results_old1(), season.get_results_old2())
                 write_year(f, season.get_results_finals(), season.get_results_old3(), files)
                 f.close()
             else:
-
                 filew = boat+ "/conclusion" + ".txt"
+                ypicpath2 = boat + "/" + "Year Graph 1"
                 f = open(filew, "w")
                 write_year(f, season.get_results(), season.get_results_new1(), files)
                 write_year(f, season.get_results(), season.get_results_new2(), files)
                 write_year(f, season.get_results(), season.get_results_new3(), files)
-                write_medium_correl_year(f, season.get_results(), season.get_results_new1(), season.get_results_new2(), season.get_results_new3())
+                write_medium_correl_year(f, ypicpath, season.get_results(), season.get_results_new1(), season.get_results_new2(), season.get_results_new3())
                 write_year(f, season.get_results(), season.get_results_new4(), files)
                 write_year(f, season.get_results(), season.get_results_new5(), files)
                 write_year(f, season.get_results(), season.get_results_new6(), files)
-                write_medium_correl_year(f, season.get_results(), season.get_results_new4(), season.get_results_new5(),
+                write_medium_correl_year(f, ypicpath2, season.get_results(), season.get_results_new4(), season.get_results_new5(),
                                          season.get_results_new6())
                 f.close()
 
