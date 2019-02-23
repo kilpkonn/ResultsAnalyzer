@@ -4,7 +4,6 @@ from season import Regatta, Season
 from grapher import draw_graph
 import os
 from numpy import array
-import numpy as np
 from scipy.stats import pearsonr
 
 
@@ -299,6 +298,7 @@ def write_table(f,original,list1,list2,list3,list4=None):
     c = []
     d = []
     e = []
+    tablematrix = []
     for i, sailor in enumerate(original):
         a.append(i+1)
         end = 0
@@ -327,8 +327,47 @@ def write_table(f,original,list1,list2,list3,list4=None):
             f.write(table_row('1-' + str(i+1), full))
             f.write("\n")
             n += 1
+            tablematrix.append(full)
     f.write("-"*303)
     f.write("\n")
+    return tablematrix
+
+def write_fulltable(f, matrix):
+    for n in range(7):
+        if n == 0:
+            f.write(format('', '>2')+'\t')
+            for num, race in enumerate(matrix):
+                for k in range(len(race)):
+                    if k == 0:
+                        f.write(format(str(num + 1), '>4') + '\t')
+                    else:
+                        f.write(format("", '>4')+'\t')
+            f.write("\n")
+            f.write(format('', '>2') + '\t')
+            for num, race in enumerate(matrix):
+                for k in range(len(race)):
+                    if k == 0:
+                        f.write(format('1-3', '>4') + '\t')
+                    else:
+                        f.write(format('1-' + str(k * 5), '>4') + '\t')
+            f.write("\n")
+        if n < 4:
+            f.write(format('M' + str(n + 1), '>2') + '\t')
+        else:
+            f.write(format('M' + str(n - 3), '>2') + '\t')
+        for race in matrix:
+            for k in range(len(race)):
+                if len(race[0]) > 4 and n > 2:
+                    if n == 3:
+                        f.write(format("-", '>4') + '\t')
+                    else:
+                        f.write(format(race[k][n - 1], '>4') + '\t')
+                elif len(race[0]) - 1 >= n:
+                    f.write(format(race[k][n], '>4') + '\t')
+                else:
+                    f.write(format("-", '>4') + '\t')
+        if n != 6:
+            f.write("\n")
 
 
 if __name__ == "__main__":
@@ -339,6 +378,7 @@ if __name__ == "__main__":
         for boat in class_folders:
             k = 0
             files = []
+            yearmatrix = []
             for csvfile in os.listdir(boat):
                 if csvfile.endswith(".csv"):
                     k += 1
@@ -356,7 +396,7 @@ if __name__ == "__main__":
                         write_medium_correl(f, picpath, regatta.get_results_normal_finals(), regatta.get_results_normal(),
                                             regatta.get_results_2(), regatta.get_results_3())
                         write_file(f, regatta.get_results_normal_finals(), regatta.get_results_4(), True)
-                        write_table(f, regatta.get_results_normal_finals(), regatta.get_results_normal(),
+                        compmatrix = write_table(f, regatta.get_results_normal_finals(), regatta.get_results_normal(),
                                             regatta.get_results_2(), regatta.get_results_3(), regatta.get_results_4())
                         f.close()
                     else:
@@ -368,17 +408,19 @@ if __name__ == "__main__":
                         write_file(f, regatta.get_results_normal(), regatta.get_results_newfinals_3(), False)
                         write_medium_correl(f, picpath, regatta.get_results_normal(), regatta.get_results_newfinals_1(),
                                             regatta.get_results_newfinals_2(), regatta.get_results_newfinals_3())
-                        write_table(f, regatta.get_results_normal(), regatta.get_results_newfinals_1(),
+                        compmatrix = write_table(f, regatta.get_results_normal(), regatta.get_results_newfinals_1(),
                                     regatta.get_results_newfinals_2(), regatta.get_results_newfinals_3())
                         write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(), False)
                         write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_2(), False)
                         write_file(f, regatta.get_results_normal(), regatta.get_results_oldfinals_3(), False)
                         write_medium_correl(f, picpath2, regatta.get_results_normal(), regatta.get_results_oldfinals_1(),
                                             regatta.get_results_oldfinals_2(), regatta.get_results_oldfinals_3())
-                        write_table(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(),
+                        compmatrix1 = write_table(f, regatta.get_results_normal(), regatta.get_results_oldfinals_1(),
                                             regatta.get_results_oldfinals_2(), regatta.get_results_oldfinals_3())
                         f.close()
-
+                        for g,com in enumerate(compmatrix):
+                            com += compmatrix1[g]
+                    yearmatrix.append(compmatrix)
             season = Season(files)
             ypicpath = boat + "/" + "Year Graph"
             if int(folder.replace(os.curdir + "/Data/", "")) > 2014:
@@ -404,3 +446,6 @@ if __name__ == "__main__":
                 write_medium_correl_year(f, ypicpath2, season.get_results(), season.get_results_new4(), season.get_results_new5(),
                                          season.get_results_new6())
                 f.close()
+            ofile = boat + "/Correl table.txt"
+            with open(ofile, "w") as f:
+                write_fulltable(f, yearmatrix)
