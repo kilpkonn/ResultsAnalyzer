@@ -339,7 +339,7 @@ def write_fulltable(f, matrix):
             for num, race in enumerate(matrix):
                 for k in range(len(race)):
                     if k == 0:
-                        f.write(format(str(num + 1), '>4') + '\t')
+                        f.write(format('Võistlus ' + str(num + 1), '>4') + '\t')
                     else:
                         f.write(format("", '>4')+'\t')
             f.write("\n")
@@ -361,9 +361,9 @@ def write_fulltable(f, matrix):
                     if n == 3:
                         f.write(format("-", '>4') + '\t')
                     else:
-                        f.write(format(race[k][n - 1], '>4') + '\t')
+                        f.write(format(str(race[k][n - 1]).replace('.',','), '>4') + '\t')
                 elif len(race[0]) - 1 >= n:
-                    f.write(format(race[k][n], '>4') + '\t')
+                    f.write(format(str(race[k][n]).replace('.',','), '>4') + '\t')
                 else:
                     f.write(format("-", '>4') + '\t')
         if n != 6:
