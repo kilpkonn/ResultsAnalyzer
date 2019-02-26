@@ -31,6 +31,7 @@ def write_file(f, original, analyzed, original_has_finals):
     changes = []
     correl = []
     chan = 0
+    n = -1
     f.write(get_line_syntax(len(original[0].races), "\t", original_has_finals, False))
     f.write("\t | \t")
     f.write(get_line_syntax(len(analyzed[0].races), "\t", not original_has_finals, True))
@@ -50,38 +51,13 @@ def write_file(f, original, analyzed, original_has_finals):
         f.write(get_line(i + 1, analyzed[i].name, analyzed[i].club, analyzed[i].races, analyzed[i].get_points_after(races = len(analyzed[i].races)),
                          analyzed[i].get_points_after(races = len(analyzed[i].races), discount=1), "\t", analyzed[i].silver, analyzed[i].gold, change, not original_has_finals, True))
         f.write("\n")
-        if i == 2:
-            changes.append(round(chan/(i+1), 2))
-            x1, y1 = create_array(original, analyzed, i)
-            x = array(x1)
-            y = array(y1)
-            correl.append([x, y])
-        elif i == 4:
+        if i == 2 or 5 * n + 4 == i and i < 20:
             changes.append(round(chan / (i + 1), 2))
             x1, y1 = create_array(original, analyzed, i)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
-        elif i == 9:
-            changes.append(round(chan / (i + 1), 2))
-            x1, y1 = create_array(original, analyzed, i)
-            x = array(x1)
-            y = array(y1)
-            correl.append([x, y])
-        elif i == 14:
-            changes.append(round(chan / (i + 1), 2))
-            x1, y1 = create_array(original, analyzed, i)
-            x = array(x1)
-            y = array(y1)
-            correl.append([x, y])
-        elif i == 19:
-            changes.append(round(chan / (i + 1), 2))
-            x1, y1 = create_array(original, analyzed, i)
-            x = array(x1)
-            y = array(y1)
-            correl.append([x, y])
-
-
+            n += 1
 
     f.write("-" * 303)
     f.write("\n")
@@ -147,41 +123,19 @@ def write_year(f, original, converted, files):
     chan = 0
     changes = []
     correl = []
+    n = -1
     for i, row in enumerate(original):
         for k in original:
             if converted[i][0] == k[0]:
                 change = original.index(k) - i
                 chan = chan + change
-        if i == 2:
-            changes.append(round(chan/(i+1), 2))
-            x1, y1 = create_array_season(original, converted, i)
-            x = array(x1)
-            y = array(y1)
-            correl.append([x, y])
-        if i == 4:
+        if i == 2 or 5 * n + 4 == i and i < 20:
             changes.append(round(chan / (i + 1), 2))
             x1, y1 = create_array_season(original, converted, i)
             x = array(x1)
             y = array(y1)
             correl.append([x, y])
-        if i == 9:
-            changes.append(round(chan / (i + 1), 2))
-            x1, y1 = create_array_season(original, converted, i)
-            x = array(x1)
-            y = array(y1)
-            correl.append([x, y])
-        if i == 14:
-            changes.append(round(chan / (i + 1), 2))
-            x1, y1 = create_array_season(original, converted, i)
-            x = array(x1)
-            y = array(y1)
-            correl.append([x, y])
-        if i == 19:
-            changes.append(round(chan / (i + 1), 2))
-            x1, y1 = create_array_season(original, converted, i)
-            x = array(x1)
-            y = array(y1)
-            correl.append([x, y])
+            n += 1
         if i == 0:
             cupname = ""
             for j in range(len(files)):
