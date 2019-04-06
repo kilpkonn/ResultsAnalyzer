@@ -180,7 +180,7 @@ class Analyzer:
         gold = None
         for i, node in enumerate(line):
             if self.syntax[i] == "name":
-                name = node
+                name = node.replace(' ', ' ').strip()
             elif self.syntax[i] == "sail_nr":
                 sail_nr = node
             elif self.syntax[i] == "club":
@@ -247,13 +247,16 @@ class Analyzer:
     def _get_clean_place(self, input: str) -> Place:
         """Get clean place."""
         if '/' in input:
-            pos = int(input.split('/')[0].replace('.0', ''))
+            pos = float(input.split('/')[0].replace(',00', '').replace('.00', '').replace('.0', '').replace(',0', ''))
             sym = input.split('/')[1]
         elif ' ' in input:
-            pos = int(input.split(' ')[0].replace('.0', ''))
+            pos = float(input.split(' ')[0].replace(',00', '').replace('.00', '').replace('.0', '').replace(',0', ''))
             sym = input.split(' ')[1]
+        elif input == '':
+            pos = 0
+            sym = '0'
         else:
-            pos = int(input.replace('.0', ''))
+            pos = float(input.replace(',00', '').replace('.00', '').replace('.0', '').replace(',0', ''))
             sym = str(pos)
         return Place(pos, sym)
 
