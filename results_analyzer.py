@@ -139,6 +139,7 @@ class Analyzer:
             raise ValueError("Invalid data type for importing, must be list[Sailor]!")
 
     def try_get_syntax(self, data) -> bool:
+        """Try to get syntax."""
         syntax = []
         for n in data:
             if n.lower() in ["sailno", "sailnr", "sail"]:
@@ -260,9 +261,11 @@ class Analyzer:
         return Place(pos, sym)
 
     def is_finals(self):
+        """Check if competition has finals."""
         return any([x.silver for x in self.get_competitors()])
 
     def get_real_places(self, list_1):
+        """Get real places."""
         results = list_1
         for n, i in enumerate(results[:4]):
             if i.silver:
@@ -277,8 +280,3 @@ class Analyzer:
             i.gold = None
             i.silver = Place(n + 2, str(n + 2))
         return results
-
-
-
-
-
